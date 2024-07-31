@@ -113,7 +113,7 @@ def get_data_ptb(root, output):
         for fname in file_list:
             print(fname)
             file_ids.append(os.path.join(dir_name, fname))
-            assert file_ids[-1].split(".")[-1] == "combined"
+            assert file_ids[-1].split(".")[-1] == "mrg"
     print(len(train_file_ids), len(val_file_ids), len(test_file_ids))
 
     def del_tags(tree, word_tags):
