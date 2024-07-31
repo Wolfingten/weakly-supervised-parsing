@@ -1,7 +1,7 @@
 export MODEL_PATH=/data/users/jguertler/models/ws_parser
 export TRAIN_SENTENCES_PATH=/data/users/jguertler/datasets/ptb_flat/ws_parser/sentences/ptb-train-sentences-without-punctuation.txt
 
-python weakly_supervised_parser/train.py \
+python3 /nethome/jguertler/weakly-supervised-parsing/weakly_supervised_parser/train.py \
     --path_to_train_sentences ${TRAIN_SENTENCES_PATH} \
     --model_name_or_path roberta-base \
     --output_dir ${MODEL_PATH} \
