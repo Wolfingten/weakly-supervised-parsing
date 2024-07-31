@@ -1,6 +1,6 @@
-PROJECT_DIR = "weakly_supervised_parser/"
-PTB_TREES_ROOT_DIR = "data/PROCESSED/english/trees/"
-PTB_SENTENCES_ROOT_DIR = "data/PROCESSED/english/sentences/"
+PROJECT_DIR = "/nethome/jguertler/weakly_supervised_parser/"
+PTB_TREES_ROOT_DIR = "/data/users/jguertler/datasets/ptb_flat/ws_parser/trees/"
+PTB_SENTENCES_ROOT_DIR = "/data/users/jguertler/datasets/ptb_flat/ws_parser/sentences/"
 
 PTB_TRAIN_SENTENCES_WITH_PUNCTUATION_PATH = PTB_SENTENCES_ROOT_DIR + "ptb-train-sentences-with-punctuation.txt"
 PTB_VALID_SENTENCES_WITH_PUNCTUATION_PATH = PTB_SENTENCES_ROOT_DIR + "ptb-valid-sentences-with-punctuation.txt"
@@ -27,7 +27,7 @@ YOON_KIM_VALID_GOLD_WITHOUT_PUNCTUATION_PATH = PTB_TREES_ROOT_DIR + "Yoon_Kim/pt
 YOON_KIM_TEST_GOLD_WITHOUT_PUNCTUATION_PATH = PTB_TREES_ROOT_DIR + "Yoon_Kim/ptb-test-gold-filtered.txt"
 
 # Predictions
-PTB_SAVE_TREES_PATH = "TEMP/predictions/english/"
+PTB_SAVE_TREES_PATH = "/data/users/jguertler/models/ws_parser/"
 
 # Training
-TRAINED_MODEL_PATH = PROJECT_DIR + "/model/TRAINED_MODEL/"
+TRAINED_MODEL_PATH = "/data/users/jguertler/models/ws_parser/"
