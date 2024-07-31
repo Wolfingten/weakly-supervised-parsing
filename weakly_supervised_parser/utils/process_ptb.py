@@ -112,7 +112,7 @@ def get_data_ptb(root, output):
             continue
         for fname in file_list:
             file_ids.append(os.path.join(dir_name, fname))
-            assert file_ids[-1].split(".")[-1] == "mrg"
+            assert file_ids[-1].split(".")[-1] == "combined"
     print(len(train_file_ids), len(val_file_ids), len(test_file_ids))
 
     def del_tags(tree, word_tags):
@@ -200,7 +200,7 @@ def get_data_ptb(root, output):
 
 def main(arguments):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--ptb_path", help="Path to parsed/mrg/wsj folder", type=str, default="./TEMP/corrected/parsed/mrg/wsj/")
+    parser.add_argument("--ptb_path", help="Path to parsed/combined/wsj folder", type=str, default="./TEMP/corrected/parsed/combined/wsj/")
     parser.add_argument("--output_path", help="Path to save processed files", type=str, default="./data/PROCESSED/english/")
     args = parser.parse_args(arguments)
     get_data_ptb(args.ptb_path, args.output_path)
