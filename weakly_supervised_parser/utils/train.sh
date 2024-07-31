@@ -1,3 +1,5 @@
+export PYTHONPATH=/nethome/jguertler/weakly-supervised-parsing/
+
 export MODEL_PATH=/data/users/jguertler/models/ws_parser
 export TRAIN_SENTENCES_PATH=/data/users/jguertler/datasets/ptb_flat/ws_parser/sentences/ptb-train-sentences-without-punctuation.txt
 

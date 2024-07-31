@@ -27,7 +27,7 @@ class LightningModel(LightningModule):
         self.model.gradient_checkpointing_enable()
         self.lr = lr
         self.train_batch_size = train_batch_size
-        self.accuracy = torchmetrics.Accuracy()
+        self.accuracy = torchmetrics.Accuracy(task="binary", num_classes=2)
         self.f1score = torchmetrics.F1Score(num_classes=2)
         self.mcc = torchmetrics.MatthewsCorrCoef(num_classes=2)
 
