@@ -28,8 +28,8 @@ class LightningModel(LightningModule):
         self.lr = lr
         self.train_batch_size = train_batch_size
         self.accuracy = torchmetrics.Accuracy(task="binary", num_classes=2)
-        self.f1score = torchmetrics.F1Score(num_classes=2)
-        self.mcc = torchmetrics.MatthewsCorrCoef(num_classes=2)
+        self.f1score = torchmetrics.F1Score(task="binary", num_classes=2)
+        self.mcc = torchmetrics.MatthewsCorrCoef(task="binary", num_classes=2)
 
     def forward(self, input_ids, attention_mask, labels=None):
         return self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
