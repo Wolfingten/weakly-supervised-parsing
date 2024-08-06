@@ -18,7 +18,7 @@ python3 /nethome/jguertler/weakly-supervised-parsing/weakly_supervised_parser/tr
     --num_labels 2 \
     --num_self_train_iterations 5 \
     --num_co_train_iterations 2 \
-    --scale_axis 0 \
+    --scale_axis -1 \
     --upper_threshold 0.995 \
     --lower_threshold 0.005 \
     --num_train_rows 100 \
