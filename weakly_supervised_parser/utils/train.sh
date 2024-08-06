@@ -11,14 +11,14 @@ python3 /nethome/jguertler/weakly-supervised-parsing/weakly_supervised_parser/tr
     --lr 5e-6 \
     --train_batch_size 32 \
     --eval_batch_size 32 \
-    --predict_batch_size 32 \
+    --predict_batch_size 1 \
     --num_workers 16 \
     --inside_max_seq_length 256 \
     --outside_max_seq_length 64 \
     --num_labels 2 \
     --num_self_train_iterations 5 \
     --num_co_train_iterations 2 \
-    --scale_axis -1 \
+    --scale_axis 0 \
     --upper_threshold 0.995 \
     --lower_threshold 0.005 \
     --num_train_rows 100 \
