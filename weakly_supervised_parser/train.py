@@ -48,6 +48,8 @@ def cli_main():
 
     parser.add_argument("--eval_batch_size", type=int, default=32, help="Number of validation samples in a batch")
 
+    parser.add_argument("--predict_batch_size", type=int, default=32, help="Parameter for predict_proba")
+
     parser.add_argument("--num_workers", default=16, type=int, help="Number of workers used in the data loader")
 
     parser.add_argument(
@@ -63,6 +65,8 @@ def cli_main():
     parser.add_argument("--num_self_train_iterations", default=5, type=int, help="Number of self-training iterations")
 
     parser.add_argument("--num_co_train_iterations", default=2, type=int, help="Number of co-training iterations")
+
+    parser.add_argument("--scale_axis", default=-1, type=int, help="Which dimension of output layer to calculate softmax on")
 
     parser.add_argument("--upper_threshold", default=0.99, type=float, help="Threshold value to choose constituents")
 
@@ -115,6 +119,8 @@ def cli_main():
         num_train_rows=args.num_train_rows,
         num_valid_examples=args.num_valid_examples,
         seed=args.seed,
+        scale_axis=args.scale_axis,
+        predict_batch_size=args.predict_batch_size
     )
 
     self_training_clf = SelfTrainingClassifier(inside_model=inside_model, num_iterations=args.num_self_train_iterations)
