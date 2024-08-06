@@ -111,6 +111,7 @@ class InsideOutsideStringClassifier:
         spans_dataset = datasets.Dataset.from_pandas(spans)
         processed = spans_dataset.map(self.preprocess_function, batched=True, batch_size=None)
         inputs = {"input": processed["input_ids"], "attention_mask": processed["attention_mask"]}
+        print(inputs)
         with torch.no_grad():
             y_hat = self.model.run(None, inputs)
             print(y_hat.shape)
