@@ -40,7 +40,7 @@ class InsideOutsideStringClassifier:
         enable_checkpointing: bool = False,
         logger: bool = False,
         accelerator: str = "auto",
-        train_batch_size: int = 32,
+        train_batch_size: int = 150,
         eval_batch_size: int = 150,
         learning_rate: float = 5e-6,
         max_epochs: int = 10,
