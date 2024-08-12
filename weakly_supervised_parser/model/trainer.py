@@ -41,7 +41,7 @@ class InsideOutsideStringClassifier:
         logger: bool = False,
         accelerator: str = "auto",
         train_batch_size: int = 32,
-        eval_batch_size: int = 32,
+        eval_batch_size: int = 150,
         learning_rate: float = 5e-6,
         max_epochs: int = 10,
         dataloader_num_workers: int = 16,
