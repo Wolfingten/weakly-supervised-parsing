@@ -44,7 +44,7 @@ parser.add_argument("--train_batch_size", type=int, default=32, help="Number of 
 
 parser.add_argument("--eval_batch_size", type=int, default=32, help="Number of validation samples in a batch")
 
-parser.add_argument("--predict_batch_size", type=int, default=32, help="Parameter for predict_proba")
+parser.add_argument("--predict_batch_size", type=int, default=150, help="Parameter for predict_proba")
 
 parser.add_argument("--num_workers", default=16, type=int, help="Number of workers used in the data loader")
 
