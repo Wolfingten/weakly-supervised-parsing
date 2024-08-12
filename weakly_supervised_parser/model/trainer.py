@@ -120,7 +120,7 @@ class InsideOutsideStringClassifier:
     def predict_proba(self, spans, scale_axis, predict_batch_size):
         print(len(spans))
         #print(len(spans[0]))
-        print(spans[0].shape)
+        print(spans.shape)
         if spans.shape[0] > predict_batch_size:
             output = []
             span_batches = np.array_split(spans, spans.shape[0] // predict_batch_size)
