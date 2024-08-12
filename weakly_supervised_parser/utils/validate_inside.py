@@ -21,7 +21,7 @@ parser = ArgumentParser(description="Training Pipeline for the Inside Outside St
 parser.add_argument("--seed", type=int, default=42, help="Training seed")
 
 parser.add_argument(
-    "--path_to_train_sentences", type=str, default="roberta-base", help="Path to pretrained model or model identifier from huggingface.co/models"
+    "--path_to_train_sentences", type=str, default="/data/users/jguertler/datasets/ptb_flat/ws_parser/sentences/ptb-train-sentences-without-punctuation.txt", help="Path to pretrained model or model identifier from huggingface.co/models"
 )
 
 parser.add_argument(
