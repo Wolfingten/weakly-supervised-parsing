@@ -109,7 +109,7 @@ class InsideOutsideStringClassifier:
 
     def process_spans(self, spans, scale_axis):
         spans_dataset = datasets.Dataset.from_pandas(spans)
-        processed = spans_dataset.map(self.preprocess_function, batched=True, batch_size=None)
+        processed = spans_dataset.map(self.preprocess_function, batched=True, batch_size=150)
         inputs = {"input": processed["input_ids"], "attention_mask": processed["attention_mask"]}
         with torch.no_grad():
             return softmax(self.model.run(None, inputs)[0], axis=scale_axis)
