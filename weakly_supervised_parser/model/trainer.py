@@ -121,6 +121,7 @@ class InsideOutsideStringClassifier:
         if spans.shape[0] > predict_batch_size:
             output = []
             span_batches = np.array_split(spans, spans.shape[0] // predict_batch_size)
+            print(span_batches.shape)
             for span_batch in span_batches:
                 output.extend(self.process_spans(span_batch, scale_axis))
             return np.vstack(output)
