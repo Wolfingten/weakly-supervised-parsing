@@ -111,21 +111,16 @@ class InsideOutsideStringClassifier:
         spans_dataset = datasets.Dataset.from_pandas(spans)
         processed = spans_dataset.map(self.preprocess_function, batched=True, batch_size=None)
         inputs = {"input": processed["input_ids"], "attention_mask": processed["attention_mask"]}
-        print(inputs)
         with torch.no_grad():
-            y_hat = self.model.run(None, inputs)
-            #print(y_hat["input"].shape)
             return softmax(self.model.run(None, inputs)[0], axis=scale_axis)
 
     def predict_proba(self, spans, scale_axis, predict_batch_size):
-        print(len(spans))
-        #print(len(spans[0]))
         print(spans.shape)
         if spans.shape[0] > predict_batch_size:
             output = []
             span_batches = np.array_split(spans, spans.shape[0] // predict_batch_size)
             print(len(span_batches))
-            print(len(span_batches[0]))
+            print(span_batches[0].shape)
             for span_batch in span_batches:
                 output.extend(self.process_spans(span_batch, scale_axis))
             return np.vstack(output)
