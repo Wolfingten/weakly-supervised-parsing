@@ -10,7 +10,7 @@ python3 /nethome/jguertler/weakly-supervised-parsing/weakly_supervised_parser/tr
     --max_epochs 10 \
     --lr 5e-6 \
     --train_batch_size 32 \
-    --eval_batch_size 32 \
+    --eval_batch_size 1 \
     --predict_batch_size 1 \
     --num_workers 16 \
     --inside_max_seq_length 256 \
