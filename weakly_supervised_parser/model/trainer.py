@@ -40,8 +40,8 @@ class InsideOutsideStringClassifier:
         enable_checkpointing: bool = False,
         logger: bool = False,
         accelerator: str = "auto",
-        train_batch_size: int = 150,
-        eval_batch_size: int = 150,
+        train_batch_size: int = 32,
+        eval_batch_size: int = 32,
         learning_rate: float = 5e-6,
         max_epochs: int = 10,
         dataloader_num_workers: int = 16,
@@ -109,7 +109,7 @@ class InsideOutsideStringClassifier:
 
     def process_spans(self, spans, scale_axis):
         spans_dataset = datasets.Dataset.from_pandas(spans)
-        processed = spans_dataset.map(self.preprocess_function, batched=True, batch_size=150)
+        processed = spans_dataset.map(self.preprocess_function, batched=True, batch_size=None)
         inputs = {"input": processed["input_ids"], "attention_mask": processed["attention_mask"]}
         with torch.no_grad():
             return softmax(self.model.run(None, inputs)[0], axis=scale_axis)
