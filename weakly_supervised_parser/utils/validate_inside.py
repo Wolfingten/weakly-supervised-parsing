@@ -76,6 +76,11 @@ parser.add_argument("--enable_progress_bar", default=True, type=bool, help="Whet
 
 args = parser.parse_args()
 
+inside_model = InsideOutsideStringClassifier(model_name_or_path=args.model_name_or_path, max_seq_length=args.inside_max_seq_length)
+
+ptb = PTBDataset(data_path=args.path_to_train_sentences)
+train, validation = ptb.train_validation_split(seed=args.seed)
+
 inside_model.load_model(pre_trained_model_path=args.output_dir + "inside_model.onnx")
 logger.info("Preparing data for self-training!")
 train_self_trained, valid_self_trained = prepare_data_for_self_training(
