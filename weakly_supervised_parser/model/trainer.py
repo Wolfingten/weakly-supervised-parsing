@@ -114,7 +114,7 @@ class InsideOutsideStringClassifier:
         print(inputs)
         with torch.no_grad():
             y_hat = self.model.run(None, inputs)
-            print(y_hat.shape)
+            print(y_hat)
             return softmax(self.model.run(None, inputs)[0], axis=scale_axis)
 
     def predict_proba(self, spans, scale_axis, predict_batch_size):
