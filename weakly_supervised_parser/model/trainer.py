@@ -119,7 +119,7 @@ class InsideOutsideStringClassifier:
 
     def predict_proba(self, spans, scale_axis, predict_batch_size):
         print(len(spans))
-        print(len(spans[0]))
+        #print(len(spans[0]))
         print(spans[0].shape)
         if spans.shape[0] > predict_batch_size:
             output = []
