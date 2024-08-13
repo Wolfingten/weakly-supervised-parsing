@@ -44,6 +44,7 @@ class PopulateCKYChart:
         if predict_type == "inside":
             
             if data.shape[0] > chunks:
+                print(f"data shape: {data.shape}")
                 data_chunks = np.array_split(data, data.shape[0] // chunks)
                 print(f"len data chunks: {len(data_chunks)}")
                 print(f"data chunks shape: {data_chunks[0].shape}")
