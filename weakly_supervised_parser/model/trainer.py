@@ -130,7 +130,7 @@ class InsideOutsideStringClassifier:
                 output.extend(self.process_spans(span_batch, scale_axis))
             return np.vstack(output)
         else:
-            spans = pd.concat([spans, pd.DataFrame([[0]*3]*3)], ignore_index=True)
+            spans = pd.concat([spans, pd.DataFrame([pd.NA]*9)], ignore_index=True)
             return self.process_spans(spans, scale_axis)
 
     def predict(self, spans):
