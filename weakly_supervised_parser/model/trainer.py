@@ -115,9 +115,13 @@ class InsideOutsideStringClassifier:
             return softmax(self.model.run(None, inputs)[0], axis=scale_axis)
 
     def predict_proba(self, spans, scale_axis, predict_batch_size):
-        spans = spans[:128:]
+        #spans = spans[:128:]
         print(f"span shape: {spans.shape}")
+        n_spans = spans.shape[0]
         if spans.shape[0] > predict_batch_size:
+            scale_factor = (n_spans // predict_batch_size) * predict_batch_size
+            print(scale_factor)
+            spans = spans[:scale_factor:]
             output = []
             span_batches = np.array_split(spans, spans.shape[0] // predict_batch_size)
             print(f"len span batches: {len(span_batches)}")
@@ -126,6 +130,7 @@ class InsideOutsideStringClassifier:
                 output.extend(self.process_spans(span_batch, scale_axis))
             return np.vstack(output)
         else:
+            spans = pd.concat([spans, spans.head(1).map(lambda x: 0)], ignore_index=True)
             return self.process_spans(spans, scale_axis)
 
     def predict(self, spans):
