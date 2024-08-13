@@ -132,6 +132,7 @@ class InsideOutsideStringClassifier:
         else:
             spans = pd.concat([spans, pd.DataFrame(["the"]*9)], ignore_index=True)
             print(spans.shape)
+            print(spans.tail())
             return self.process_spans(spans, scale_axis)
         print(f"span shape: {spans.shape}")
 
