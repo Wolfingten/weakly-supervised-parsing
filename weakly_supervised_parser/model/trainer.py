@@ -130,8 +130,9 @@ class InsideOutsideStringClassifier:
                 output.extend(self.process_spans(span_batch, scale_axis))
             return np.vstack(output)
         else:
-            spans = pd.concat([spans, pd.DataFrame([pd.NA]*9)], ignore_index=True)
+            spans = pd.concat([spans, pd.DataFrame(["na"]*9)], ignore_index=True)
             return self.process_spans(spans, scale_axis)
+        print(f"span shape: {spans.shape}")
 
     def predict(self, spans):
         return self.predict_proba(spans).argmax(axis=1)
