@@ -55,7 +55,7 @@ class PopulateCKYChart:
                                                          predict_batch_size=predict_batch_size)[:, 1])
             #print(inside_scores)
             print(len(inside_scores))
-            print(data.head())
+            print(data.describe())
             data["inside_scores"] = inside_scores
             data.loc[
                 (data["inside_sentence"].str.lower().str.startswith(ptb_most_common_first_token))
