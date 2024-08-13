@@ -115,8 +115,8 @@ class InsideOutsideStringClassifier:
             return softmax(self.model.run(None, inputs)[0], axis=scale_axis)
 
     def predict_proba(self, spans, scale_axis, predict_batch_size):
-        #spans = spans[:128:]
         print(f"span shape: {spans.shape}")
+        print(spans.head())
         n_spans = spans.shape[0]
         if spans.shape[0] > predict_batch_size:
             scale_factor = (n_spans // predict_batch_size) * predict_batch_size
