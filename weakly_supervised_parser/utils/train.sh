@@ -13,7 +13,7 @@ python3 /nethome/jguertler/weakly-supervised-parsing/weakly_supervised_parser/tr
     --eval_batch_size 1 \
     --predict_batch_size 1 \
     --num_workers 16 \
-    --inside_max_seq_length 300 \
+    --inside_max_seq_length 256 \
     --outside_max_seq_length 64 \
     --num_labels 2 \
     --num_self_train_iterations 5 \
