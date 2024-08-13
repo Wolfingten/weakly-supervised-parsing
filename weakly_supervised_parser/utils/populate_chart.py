@@ -45,6 +45,8 @@ class PopulateCKYChart:
             
             if data.shape[0] > chunks:
                 data_chunks = np.array_split(data, data.shape[0] // chunks)
+                print(len(data_chunks))
+                print(data_chunks[0].shape)
                 for data_chunk in data_chunks:
                     inside_scores.extend(model.predict_proba(spans=data_chunk.rename(columns={"inside_sentence": "sentence"})[["sentence"]],
                                                              scale_axis=scale_axis,
@@ -53,7 +55,6 @@ class PopulateCKYChart:
                 inside_scores.extend(model.predict_proba(spans=data.rename(columns={"inside_sentence": "sentence"})[["sentence"]],
                                                          scale_axis=scale_axis,
                                                          predict_batch_size=predict_batch_size)[:, 1])
-            #print(inside_scores)
             print(len(inside_scores))
             print(data.describe())
             data["inside_scores"] = inside_scores

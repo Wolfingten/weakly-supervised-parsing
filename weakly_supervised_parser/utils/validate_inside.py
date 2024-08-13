@@ -49,7 +49,7 @@ parser.add_argument("--predict_batch_size", type=int, default=32, help="Paramete
 parser.add_argument("--num_workers", default=16, type=int, help="Number of workers used in the data loader")
 
 parser.add_argument(
-    "--inside_max_seq_length", default=300, type=int, help="The maximum total input sequence length after tokenization for the inside model"
+    "--inside_max_seq_length", default=256, type=int, help="The maximum total input sequence length after tokenization for the inside model"
 )
 
 parser.add_argument(
