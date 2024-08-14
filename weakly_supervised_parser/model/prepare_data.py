@@ -40,7 +40,7 @@ def prepare_data_for_self_training(
             constituents_proba = inside_model.predict_proba(
                 pd.DataFrame(dict(sentence=best_parse_get_constituents)), scale_axis=scale_axis, predict_batch_size=predict_batch_size
             )[:, 1]
-            constituents_proba = constituents_proba[:24:]
+            constituents_proba = constituents_proba[:23:]
             print(f"len constituent proba: {len(constituents_proba)}")
             df_constituents = pd.DataFrame({"sentence": best_parse_get_constituents, "label": constituents_proba})
             df_constituents["label"] = np.where(df_constituents["label"] > threshold, 1, -1)
