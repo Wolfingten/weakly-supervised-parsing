@@ -122,12 +122,12 @@ class InsideOutsideStringClassifier:
             output = []
             span_batches = np.array_split(spans, n_spans // predict_batch_size)
             for span_batch in span_batches:
-                output.extend(self.process_spans(span_batch, scale_axis)[:n_spans:])
+                output.extend(self.process_spans(span_batch, scale_axis))
             return np.vstack(output)
         else:
             n_padding = predict_batch_size - n_spans
             spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
-            return self.process_spans(spans, scale_axis)[:n_spans:]
+            return self.process_spans(spans, scale_axis)
 
     def predict(self, spans):
         return self.predict_proba(spans).argmax(axis=1)
