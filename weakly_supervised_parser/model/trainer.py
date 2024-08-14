@@ -124,7 +124,9 @@ class InsideOutsideStringClassifier:
             # spans.shape[0] = 160 because padding
             span_batches = np.array_split(spans, spans.shape[0] // predict_batch_size)
             for span_batch in span_batches:
-                output.extend(self.process_spans(span_batch, scale_axis)[:n_spans:])
+                pred = self.process_spans(span_batch, scale_axis)[:n_spans:]
+                print(pred.shape)
+                output.extend(pred)
             return np.vstack(output)
         else:
             n_padding = predict_batch_size - n_spans
