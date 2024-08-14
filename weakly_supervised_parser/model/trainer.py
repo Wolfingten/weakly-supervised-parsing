@@ -115,27 +115,19 @@ class InsideOutsideStringClassifier:
             return softmax(self.model.run(None, inputs)[0], axis=scale_axis)
 
     def predict_proba(self, spans, scale_axis, predict_batch_size):
-        print(f"span shape: {spans.shape}")
-        print(spans.head())
         n_spans = spans.shape[0]
-        if spans.shape[0] > predict_batch_size:
+        if n_spans > predict_batch_size:
             n_padding = (-(-n_spans // predict_batch_size) * predict_batch_size - n_spans)
-            print(n_padding)
             spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
             output = []
-            span_batches = np.array_split(spans, spans.shape[0] // predict_batch_size)
-            print(f"len span batches: {len(span_batches)}")
-            print(f"span batches shape: {span_batches[0].shape}")
+            span_batches = np.array_split(spans, n_spans // predict_batch_size)
             for span_batch in span_batches:
-                output.extend(self.process_spans(span_batch, scale_axis))
+                output.extend(self.process_spans(span_batch, scale_axis)[:n_spans:])
             return np.vstack(output)
         else:
             n_padding = predict_batch_size - n_spans
             spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
-            print(spans.shape)
-            print(spans.tail())
-            return self.process_spans(spans, scale_axis)
-        print(f"span shape: {spans.shape}")
+            return self.process_spans(spans, scale_axis)[:n_spans:]
 
     def predict(self, spans):
         return self.predict_proba(spans).argmax(axis=1)

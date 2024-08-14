@@ -56,9 +56,8 @@ class PopulateCKYChart:
                 inside_scores.extend(model.predict_proba(spans=data.rename(columns={"inside_sentence": "sentence"})[["sentence"]],
                                                          scale_axis=scale_axis,
                                                          predict_batch_size=predict_batch_size)[:, 1])
-            #print(len(inside_scores))
-            #print(data.describe())
-            data["inside_scores"] = inside_scores + [0] * 44
+                                                         
+            data["inside_scores"] = inside_scores
             data.loc[
                 (data["inside_sentence"].str.lower().str.startswith(ptb_most_common_first_token))
                 & (data["inside_sentence"].str.lower().str.split().str.len() == 2)
