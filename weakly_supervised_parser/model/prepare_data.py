@@ -42,7 +42,7 @@ def prepare_data_for_self_training(
             df_constituents["label"] = np.where(df_constituents["label"] > threshold, 1, -1)
 
         if best_parse_get_distituents:
-            distituents_proba = inside_model.predict_proba(pd.DataFrame(dict(sentence=best_parse_get_distituents)))[:, 0]
+            distituents_proba = inside_model.predict_proba(pd.DataFrame(dict(sentence=best_parse_get_distituents)), scale_axis=scale_axis, predict_batch_size=predict_batch_size)[:, 0]
             df_distituents = pd.DataFrame({"sentence": best_parse_get_distituents, "label": distituents_proba})
             df_distituents["label"] = np.where(df_distituents["label"] > threshold, 0, -1)
 
