@@ -34,6 +34,7 @@ def prepare_data_for_self_training(
         best_parse_get_constituents = get_constituents(best_parse)
         best_parse_get_distituents = get_distituents(best_parse)
 
+        print(f"best parse consituents: {best_parse_get_constituents}")
         if best_parse_get_constituents:
             constituents_proba = inside_model.predict_proba(
                 pd.DataFrame(dict(sentence=best_parse_get_constituents)), scale_axis=scale_axis, predict_batch_size=predict_batch_size
