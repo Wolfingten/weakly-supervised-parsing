@@ -122,6 +122,7 @@ class InsideOutsideStringClassifier:
             print(spans.shape)
             output = []
             span_batches = np.array_split(spans, n_spans // predict_batch_size)
+            print(n_spans // predict_batch_size)
             print(len(span_batches))
             for span_batch in span_batches:
                 output.extend(self.process_spans(span_batch, scale_axis)[:n_spans:])
