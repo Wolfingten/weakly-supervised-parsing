@@ -1,3 +1,5 @@
+python3 -m nltk.downloader stopwords
+
 export PYTHONPATH=/nethome/jguertler/weakly-supervised-parsing/
 
 export MODEL_PATH=/data/users/jguertler/models/ws_parser/
