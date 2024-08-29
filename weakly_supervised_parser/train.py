@@ -134,6 +134,8 @@ def cli_main():
         max_epochs=args.max_epochs,
         learning_rate=args.lr,
         dataloader_num_workers=args.num_workers,
+        scale_axis=args.scale_axis,
+        predict_batch_size=args.predict_batch_size
     )
 
     # --------------------
@@ -150,6 +152,8 @@ def cli_main():
         lower_threshold=args.lower_threshold,
         num_train_rows=args.num_train_rows,
         seed=args.seed,
+        scale_axis=args.scale_axis,
+        predict_batch_size=args.predict_batch_size
     )
 
     logger.info("Training the outside model!")
@@ -175,7 +179,7 @@ def cli_main():
 
     logger.info("Preparing data for co-training!")
     inside_strings, outside_strings, labels = prepare_data_for_co_training(
-        inside_model, outside_model, upper_threshold=args.upper_threshold, lower_threshold=args.lower_threshold, seed=args.seed
+        inside_model, outside_model, upper_threshold=args.upper_threshold, lower_threshold=args.lower_threshold, seed=args.seed, scale_axis=args.scale_axis, predict_batch_size=args.predict_batch_size
     )
 
     co_training_clf = CoTrainingClassifier(inside_model=inside_model, outside_model=outside_model, num_iterations=args.num_co_train_iterations)
