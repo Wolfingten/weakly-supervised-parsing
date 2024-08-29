@@ -11,7 +11,7 @@ class SelfTrainingClassifier:
         self.prob_threshold = prob_threshold
 
     def fit(
-        self, train_inside, valid_inside, train_batch_size, eval_batch_size, learning_rate, max_epochs, dataloader_num_workers
+        self, train_inside, valid_inside, train_batch_size, eval_batch_size, learning_rate, max_epochs, dataloader_num_workers, scale_axis, predict_batch_size
     ):  # -1 for unlabeled
         inside_strings = train_inside["sentence"].values
         labels = train_inside["label"].values
@@ -64,14 +64,16 @@ class SelfTrainingClassifier:
                 learning_rate=learning_rate,
                 max_epochs=max_epochs,
                 dataloader_num_workers=dataloader_num_workers,
+                scale_axis = scale_axis,
+                predict_batch_size = predict_batch_size,
                 outputdir=TRAINED_MODEL_PATH,
                 filename=filename,
             )
 
             self.inside_model.load_model(pre_trained_model_path=TRAINED_MODEL_PATH + f"{filename}.onnx")
 
-            unlabeledy = self.inside_model.predict(pd.DataFrame(dict(sentence=unlabeled_inside_strings)))
-            unlabeledprob = self.inside_model.predict_proba(pd.DataFrame(dict(sentence=unlabeled_inside_strings)))
+            unlabeledy = self.inside_model.predict(pd.DataFrame(dict(sentence=unlabeled_inside_strings)), scale_axis, predict_batch_size)
+            unlabeledprob = self.inside_model.predict_proba(pd.DataFrame(dict(sentence=unlabeled_inside_strings)), scale_axis, predict_batch_size)
             idx += 1
 
         return self
