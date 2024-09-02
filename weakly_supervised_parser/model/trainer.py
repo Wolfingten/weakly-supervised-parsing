@@ -132,5 +132,5 @@ class InsideOutsideStringClassifier:
             spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
             return self.process_spans(spans, scale_axis)[:n_spans:] # truncate padding
 
-    def predict(self, spans):
-        return self.predict_proba(spans).argmax(axis=1)
+    def predict(self, spans, scale_axis, predict_batch_size):
+        return self.predict_proba(spans, scale_axis, predict_batch_size).argmax(axis=1)
