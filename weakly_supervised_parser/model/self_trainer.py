@@ -35,8 +35,8 @@ class SelfTrainingClassifier:
 
         self.inside_model.load_model(pre_trained_model_path=TRAINED_MODEL_PATH + f"inside_model_self_trained_base.onnx")
 
-        unlabeledy = self.inside_model.predict(pd.DataFrame(dict(sentence=unlabeled_inside_strings)))
-        unlabeledprob = self.inside_model.predict_proba(pd.DataFrame(dict(sentence=unlabeled_inside_strings)))
+        unlabeledy = self.inside_model.predict(pd.DataFrame(dict(sentence=unlabeled_inside_strings)), scale_axis, predict_batch_size)
+        unlabeledprob = self.inside_model.predict_proba(pd.DataFrame(dict(sentence=unlabeled_inside_strings)), scale_axis, predict_batch_size)
         unlabeledy_old = []
         # re-train, labeling unlabeled instances with model predictions, until convergence
         idx = 0
