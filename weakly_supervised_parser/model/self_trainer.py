@@ -64,8 +64,8 @@ class SelfTrainingClassifier:
                 learning_rate=learning_rate,
                 max_epochs=max_epochs,
                 dataloader_num_workers=dataloader_num_workers,
-                scale_axis = scale_axis,
-                predict_batch_size = predict_batch_size,
+#                scale_axis = scale_axis,
+#                predict_batch_size = predict_batch_size,
                 outputdir=TRAINED_MODEL_PATH,
                 filename=filename,
             )
