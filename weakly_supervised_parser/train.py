@@ -165,7 +165,7 @@ def cli_main():
         eval_batch_size=args.eval_batch_size,
         max_epochs=args.max_epochs,
         learning_rate=args.lr,
-        use_gpu=args.gpus,
+#        use_gpu=args.gpus,
         dataloader_num_workers=args.num_workers,
         outputdir=args.output_dir,
         filename="outside_model",
