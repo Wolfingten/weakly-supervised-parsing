@@ -19,6 +19,7 @@ class PyTorchDataModule(Dataset):
 
     def __len__(self):
         """returns length of data"""
+        print(self.data)
         return len(self.data)
 
     def __getitem__(self, index: int):
