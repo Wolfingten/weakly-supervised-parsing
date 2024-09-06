@@ -171,4 +171,6 @@ def prepare_data_for_co_training(inside_model, outside_model, upper_threshold, l
         outside_strings = df_out["outside_sentence"].values
         labels = df_out["label"].values
 
+        df_out.to_csv("/data/users/jguertler/wsparser_co_train.csv", index=False)
+
         return inside_strings, outside_strings, labels
