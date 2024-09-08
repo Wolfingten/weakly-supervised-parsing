@@ -19,10 +19,10 @@ class PyTorchDataModule(Dataset):
 
     def __len__(self):
         """returns length of data"""
-        if not self.data:
-            return 0
-        else:
+        try:
             return len(self.data)
+        except TypeError:
+            return 0
 
     def __getitem__(self, index: int):
         """returns dictionary of input tensors to feed into the model"""
