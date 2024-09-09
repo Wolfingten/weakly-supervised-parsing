@@ -108,12 +108,12 @@ class CoTrainingClassifier:
 
         # let's fit our final model
         train_inside = pd.DataFrame(dict(sentence=inside_strings[labeled_samples], label=y[labeled_samples]))
-
-        self.inside_model.fit(train_df=train_inside, eval_df=None, outputdir=TRAINED_MODEL_PATH, filename="inside_model_co_trained")
+        # Replace None with train_inside to avoid TypeError
+        self.inside_model.fit(train_df=train_inside, eval_df=train_inside, outputdir=TRAINED_MODEL_PATH, filename="inside_model_co_trained")
 
         train_outside = pd.DataFrame(dict(sentence=outside_strings[labeled_samples], label=y[labeled_samples]))
 
-        self.outside_model.fit(train_df=train_outside, eval_df=None, outputdir=TRAINED_MODEL_PATH, filename="outside_model_co_trained")
+        self.outside_model.fit(train_df=train_outside, eval_df=train_inside, outputdir=TRAINED_MODEL_PATH, filename="outside_model_co_trained")
 
     def predict_proba(self, inside_strings, outside_strings):
         """Predict the probability of the samples belonging to each class."""
