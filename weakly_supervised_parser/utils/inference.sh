@@ -6,4 +6,5 @@ python /nethome/jguertler/weakly-supervised-parsing/weakly_supervised_parser/inf
     --use_inside \
     --model_name_or_path roberta-base \
     --inside_max_seq_length 256 \
-    --save_path /data/users/jguertler/outputs/ws_parser/inference.txt
+    --save_path /data/users/jguertler/outputs/ws_parser/inference.txt \
+    --predict_batch_size 32
