@@ -16,7 +16,7 @@ import torch
 parser = argparse.ArgumentParser()
 
 # Data path options
-parser.add_argument("--tree1", default="data/PROCESSED/english/trees/Yoon_Kim/ptb-test-gold-filtered.txt")
+parser.add_argument("--tree1", default="/data/users/jguertler/datasets/ptb_flat/ws_parser/trees/ptb-test-gold-filtered.txt")
 parser.add_argument("--tree2", default="")
 parser.add_argument("--length_cutoff", default=150, type=int)
 
