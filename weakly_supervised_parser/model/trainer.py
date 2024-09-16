@@ -22,7 +22,9 @@ logging.set_verbosity_error()
 
 
 class InsideOutsideStringClassifier:
-    def __init__(self, model_name_or_path: str, num_labels: int = 2, max_seq_length: int = 256):
+    def __init__(
+        self, model_name_or_path: str, num_labels: int = 2, max_seq_length: int = 256
+    ):
 
         self.model_name_or_path = model_name_or_path
         self.num_labels = num_labels
@@ -47,7 +49,7 @@ class InsideOutsideStringClassifier:
         dataloader_num_workers: int = 16,
         seed: int = 42,
     ):
-        
+
         data_module = DataModule(
             model_name_or_path=self.model_name_or_path,
             train_df=train_df,
@@ -69,7 +71,9 @@ class InsideOutsideStringClassifier:
         seed_everything(seed, workers=True)
 
         callbacks = []
-        callbacks.append(EarlyStopping(monitor="val_loss", patience=2, mode="min", check_finite=True))
+        callbacks.append(
+            EarlyStopping(monitor="val_loss", patience=2, mode="min", check_finite=True)
+        )
         # callbacks.append(ModelCheckpoint(monitor="val_loss", dirpath=outputdir, filename=filename, save_top_k=1, save_weights_only=True, mode="min"))
 
         trainer = Trainer(
@@ -89,48 +93,80 @@ class InsideOutsideStringClassifier:
 
         model.to_onnx(
             file_path=f"{outputdir}/{filename}.onnx",
-            input_sample=(train_batch["input_ids"].cuda(), train_batch["attention_mask"].cuda()),
+            input_sample=(
+                train_batch["input_ids"].cuda(),
+                train_batch["attention_mask"].cuda(),
+            ),
             export_params=True,
             opset_version=11,
             input_names=["input", "attention_mask"],
             output_names=["output"],
-            dynamic_axes={"input": {0: "batch_size"}, "attention_mask": {0: "batch_size"}, "output": {0: "batch_size"}},
+            dynamic_axes={
+                "input": {0: "batch_size"},
+                "attention_mask": {0: "batch_size"},
+                "output": {0: "batch_size"},
+            },
         )
 
     def load_model(self, pre_trained_model_path):
-        self.model = InferenceSession(pre_trained_model_path, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name_or_path, use_fast=True)
+        self.model = InferenceSession(
+            pre_trained_model_path,
+            providers=["CUDAExecutionProvider", "CPUExecutionProvider"],
+        )
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            self.model_name_or_path, use_fast=True
+        )
 
     def preprocess_function(self, data):
         features = self.tokenizer(
-            data["sentence"], max_length=self.max_seq_length, padding="max_length", add_special_tokens=True, truncation=True, return_tensors="np"
+            data["sentence"],
+            max_length=self.max_seq_length,
+            padding="max_length",
+            add_special_tokens=True,
+            truncation=True,
+            return_tensors="np",
         )
         return features
 
     def process_spans(self, spans, scale_axis):
         spans_dataset = datasets.Dataset.from_pandas(spans)
-        processed = spans_dataset.map(self.preprocess_function, batched=True, batch_size=None)
-        inputs = {"input": processed["input_ids"], "attention_mask": processed["attention_mask"]}
+        processed = spans_dataset.map(
+            self.preprocess_function, batched=True, batch_size=None
+        )
+        inputs = {
+            "input": processed["input_ids"],
+            "attention_mask": processed["attention_mask"],
+        }
         with torch.no_grad():
             return softmax(self.model.run(None, inputs)[0], axis=scale_axis)
 
     def predict_proba(self, spans, scale_axis, predict_batch_size):
-        # n_spans = 150
-        n_spans = spans.shape[0]
-        if n_spans > predict_batch_size:
-            # add padding so all inputs can be passed to the model
-            n_padding = (-(-n_spans // predict_batch_size) * predict_batch_size - n_spans)
-            spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
+        if spans.shape[0] > predict_batch_size:
             output = []
-            # spans.shape[0] = 160 because padding
             span_batches = np.array_split(spans, spans.shape[0] // predict_batch_size)
             for span_batch in span_batches:
                 output.extend(self.process_spans(span_batch, scale_axis))
-            return np.vstack(output)[:n_spans:] # truncate padding
+            return np.vstack(output)
         else:
-            n_padding = predict_batch_size - n_spans
-            spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
-            return self.process_spans(spans, scale_axis)[:n_spans:] # truncate padding
+            return self.process_spans(spans, scale_axis)
+
+    #    def predict_proba(self, spans, scale_axis, predict_batch_size):
+    #        # n_spans = 150
+    #        n_spans = spans.shape[0]
+    #        if n_spans > predict_batch_size:
+    #            # add padding so all inputs can be passed to the model
+    #            n_padding = (-(-n_spans // predict_batch_size) * predict_batch_size - n_spans)
+    #            spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
+    #            output = []
+    #            # spans.shape[0] = 160 because padding
+    #            span_batches = np.array_split(spans, spans.shape[0] // predict_batch_size)
+    #            for span_batch in span_batches:
+    #                output.extend(self.process_spans(span_batch, scale_axis))
+    #            return np.vstack(output)[:n_spans:] # truncate padding
+    #        else:
+    #            n_padding = predict_batch_size - n_spans
+    #            spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
+    #            return self.process_spans(spans, scale_axis)[:n_spans:] # truncate padding
 
     def predict(self, spans, scale_axis, predict_batch_size):
         return self.predict_proba(spans, scale_axis, predict_batch_size).argmax(axis=1)
