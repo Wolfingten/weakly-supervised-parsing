@@ -1,49 +1,70 @@
 {
-  description = "Python venv development template";
+  description = "A very basic flake";
 
   inputs = {
-    utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    devenv = {
+      url = "github:cachix/devenv";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nixpkgs-python = {
+      url = "github:cachix/nixpkgs-python";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = {
+  outputs = inputs @ {
     self,
     nixpkgs,
-    utils,
+    devenv,
     ...
-  }:
-    utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {inherit system;};
-      pythonPackages = pkgs.python3Packages;
-    in {
-      devShells.default = pkgs.mkShell {
-        name = "python-venv";
-        venvDir = "./.venv";
-        buildInputs = [
-          # A Python interpreter including the 'venv' module is required to bootstrap
-          # the environment.
-          pythonPackages.python
-
-          # This executes some shell code to initialize a venv in $venvDir before
-          # dropping into the shell
-          pythonPackages.venvShellHook
-
-          # Those are dependencies that we would like to use from nixpkgs, which will
-          # add them to PYTHONPATH and thus make them accessible from within the venv.
-          #pythonPackages.numpy
-        ];
-
-        # Run this command, only after creating the virtual environment
-        postVenvCreation = ''
-          unset SOURCE_DATE_EPOCH
-          pip install -r requirements.txt
-        '';
-
-        # Now we can execute any commands within the virtual environment.
-        # This is optional and can be left out to run pip manually.
-        postShellHook = ''
-          # allow pip to install wheels
-          unset SOURCE_DATE_EPOCH
-        '';
+  }: let
+    system = "x86_64-linux";
+    #    pkgs = nixpkgs.legacyPackages.${system};
+    pkgs = import nixpkgs {
+      inherit system;
+      config = {
+        allowUnfree = true;
+        #        cudaSupport = true;
       };
-    });
+    };
+  in {
+    devShells.${system}.default = devenv.lib.mkShell {
+      inherit inputs pkgs;
+      modules = [
+        ({
+          pkgs,
+          config,
+          ...
+        }: {
+          # This is your devenv configuration
+          # for options see https://devenv.sh/reference/options/
+          packages = with pkgs; [
+            cudaPackages.cudatoolkit
+            # from https://github.com/cachix/devenv/issues/1264#issuecomment-2368362686
+            stdenv.cc.cc.lib # required by jupyter
+            gcc-unwrapped # fix: libstdc++.so.6: cannot open shared object file
+            libz # fix: for numpy/pandas import
+          ];
+
+          languages.python = {
+            enable = true;
+            version = "3.8";
+            venv = {
+              enable = true;
+              requirements = ./requirements.txt;
+            };
+          };
+
+          # for cuda support
+          # https://discourse.nixos.org/t/pytorch-installed-via-pip-does-not-pick-up-cuda/30744/2
+          # https://github.com/clementpoiret/nix-python-devenv/blob/main/flake.nix
+          env.LD_LIBRARY_PATH = "${pkgs.gcc-unwrapped.lib}/lib64:${pkgs.libz}/lib:/run/opengl-driver/lib:/run/opengl-driver-32/lib";
+
+          enterShell = ''
+          '';
+        })
+      ];
+    };
+  };
 }

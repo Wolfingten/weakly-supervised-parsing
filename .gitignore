@@ -138,4 +138,12 @@ data/
 lightning_logs/
 
 # Model Folder:
-weakly_supervised_parser/model/TRAINED_MODEL
+weakly_supervised_parser/model/TRAINED_MODEL# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
