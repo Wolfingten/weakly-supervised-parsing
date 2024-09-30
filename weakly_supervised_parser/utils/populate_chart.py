@@ -82,12 +82,17 @@ class PopulateCKYChart:
     def fill_chart(self, model, predict_type, scale_axis, predict_batch_size, data=None):
         if data is None:
             flags, data = self.compute_scores(model, predict_type, scale_axis, predict_batch_size)
+        else:
+            flags = None
         for span in self.all_spans:
             for i in range(0, self.sentence_length):
                 for j in range(i + 1, self.sentence_length + 1):
                     if span[0] == (i, j):
                         self.span_scores[i, j] = data.loc[data["span"] == span[0], "scores"].item()
-        return flags, self.span_scores, data
+        if flags:
+            return flags, self.span_scores, data
+        else:
+            return 0, self.span_scores, data
 
     def best_parse_tree(self, span_scores):
         span_scores_cky_format = span_scores[:-1, 1:]

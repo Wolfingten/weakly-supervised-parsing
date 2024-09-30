@@ -48,12 +48,13 @@ def process_test_sample(index, sentence, gold_file_path, predict_type, model, sc
         return best_parse
 
 
-def process_co_train_test_sample(index, sentence, gold_file_path, inside_model, outside_model, return_df=False):
-    _, df_inside = PopulateCKYChart(sentence=sentence).compute_scores(predict_type="inside", model=inside_model, return_df=True)
-    _, df_outside = PopulateCKYChart(sentence=sentence).compute_scores(predict_type="outside", model=outside_model, return_df=True)
+def process_co_train_test_sample(index, sentence, gold_file_path, inside_model, outside_model, scale_axis, predict_batch_size, return_df=False):
+    _, df_inside = PopulateCKYChart(sentence=sentence).compute_scores(predict_type="inside", model=inside_model, scale_axis=scale_axis, predict_batch_size=predict_batch_size)
+    _, df_outside = PopulateCKYChart(sentence=sentence).compute_scores(predict_type="outside", model=outside_model, scale_axis=scale_axis, predict_batch_size=predict_batch_size)
     df = df_inside.copy()
     df["scores"] = df_inside["scores"] * df_outside["scores"]
-    _, span_scores, df = PopulateCKYChart(sentence=sentence).fill_chart(data=df)
+    # If data is not none, inside model, predict type, scale axis and predict batch size are not used
+    _, span_scores, df = PopulateCKYChart(sentence=sentence).fill_chart(model=inside_model, predict_type="inside", scale_axis=scale_axis, predict_batch_size=predict_batch_size, data=df)
     best_parse = PopulateCKYChart(sentence=sentence).best_parse_tree(span_scores)
     gold_standard = DataLoaderHelper(input_file_object=gold_file_path)
     sentence_f1 = calculate_F1_for_spans(tree_to_spans(gold_standard[index]), tree_to_spans(best_parse))
@@ -81,7 +82,8 @@ def main():
 
     parser.add_argument("--save_path", type=str, required=True, help="Path to save the final trees")
     
-    parser.add_argument("--scale_axis", choices=[None, 1], default=None, help="Whether to scale axis globally (None) or sequentially (1) across batches during softmax computation")
+#    parser.add_argument("--scale_axis", choices=[None, 1], default=None, help="Whether to scale axis globally (None) or sequentially (1) across batches during softmax computation")
+    parser.add_argument("--scale_axis", type=int, default=1, help="Whether to scale axis globally (None) or sequentially (1) across batches during softmax computation")
     
     parser.add_argument("--predict_batch_size", type=int, help="Batch size during inference")
 
@@ -108,11 +110,11 @@ def main():
         max_seq_length = args.outside_max_seq_length
 
     if args.use_inside_outside_co_train:
-        inside_pre_trained_model_path = "inside_model_co_trained.onnx"
+        inside_pre_trained_model_path = TRAINED_MODEL_PATH + "inside_model_co_trained.onnx"
         inside_model = InsideOutsideStringClassifier(model_name_or_path=args.model_name_or_path, max_seq_length=args.inside_max_seq_length)
         inside_model.load_model(pre_trained_model_path=inside_pre_trained_model_path)
 
-        outside_pre_trained_model_path = "outside_model_co_trained.onnx"
+        outside_pre_trained_model_path = TRAINED_MODEL_PATH + "outside_model_co_trained.onnx"
         outside_model = InsideOutsideStringClassifier(model_name_or_path=args.model_name_or_path, max_seq_length=args.outside_max_seq_length)
         outside_model.load_model(pre_trained_model_path=outside_pre_trained_model_path)
     else:
@@ -132,7 +134,7 @@ def main():
         for test_index, test_sentence in enumerate(test_sentences):
             if args.use_inside_outside_co_train:
                 best_parse = process_co_train_test_sample(
-                    test_index, test_sentence, test_gold_file_path, inside_model=inside_model, outside_model=outside_model
+                    test_index, test_sentence, test_gold_file_path, inside_model=inside_model, outside_model=outside_model, scale_axis=args.scale_axis, predict_batch_size=args.predict_batch_size
                 )
             else:
                 best_parse = process_test_sample(test_index, test_sentence, test_gold_file_path, predict_type=predict_type, model=model,

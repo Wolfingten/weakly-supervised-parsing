@@ -1,4 +1,5 @@
 import os
+from math import ceil
 import torch
 import datasets
 import numpy as np
@@ -140,33 +141,33 @@ class InsideOutsideStringClassifier:
         with torch.no_grad():
             return softmax(self.model.run(None, inputs)[0], axis=scale_axis)
 
+#    def predict_proba(self, spans, scale_axis, predict_batch_size):
+#        if spans.shape[0] > predict_batch_size:
+#            output = []
+#            span_batches = np.array_split(spans, ceil(spans.shape[0] / predict_batch_size))
+#            for span_batch in span_batches:
+#                output.extend(self.process_spans(span_batch, scale_axis))
+#            return np.vstack(output)
+#        else:
+#            return self.process_spans(spans, scale_axis)
+
     def predict_proba(self, spans, scale_axis, predict_batch_size):
-        if spans.shape[0] > predict_batch_size:
+        # n_spans = 150
+        n_spans = spans.shape[0]
+        if n_spans > predict_batch_size:
+            # add padding so all inputs can be passed to the model
+            n_padding = (-(-n_spans // predict_batch_size) * predict_batch_size - n_spans)
+            spans = pd.concat([spans, pd.DataFrame(["<pad>"]*n_padding, columns=spans.columns)], ignore_index=True)
             output = []
+            # spans.shape[0] = 160 because padding
             span_batches = np.array_split(spans, spans.shape[0] // predict_batch_size)
             for span_batch in span_batches:
                 output.extend(self.process_spans(span_batch, scale_axis))
-            return np.vstack(output)
+            return np.vstack(output)[:n_spans:] # truncate padding
         else:
-            return self.process_spans(spans, scale_axis)
-
-    #    def predict_proba(self, spans, scale_axis, predict_batch_size):
-    #        # n_spans = 150
-    #        n_spans = spans.shape[0]
-    #        if n_spans > predict_batch_size:
-    #            # add padding so all inputs can be passed to the model
-    #            n_padding = (-(-n_spans // predict_batch_size) * predict_batch_size - n_spans)
-    #            spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
-    #            output = []
-    #            # spans.shape[0] = 160 because padding
-    #            span_batches = np.array_split(spans, spans.shape[0] // predict_batch_size)
-    #            for span_batch in span_batches:
-    #                output.extend(self.process_spans(span_batch, scale_axis))
-    #            return np.vstack(output)[:n_spans:] # truncate padding
-    #        else:
-    #            n_padding = predict_batch_size - n_spans
-    #            spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
-    #            return self.process_spans(spans, scale_axis)[:n_spans:] # truncate padding
+            n_padding = predict_batch_size - n_spans
+            spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
+            return self.process_spans(spans, scale_axis)[:n_spans:] # truncate padding
 
     def predict(self, spans, scale_axis, predict_batch_size):
         return self.predict_proba(spans, scale_axis, predict_batch_size).argmax(axis=1)
