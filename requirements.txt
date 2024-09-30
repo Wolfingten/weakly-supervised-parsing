@@ -1,13 +1,13 @@
 pandas==1.4.1
-#scikit-learn==1.0.2
-#nltk==3.7
-#torch==1.10.2
-#pytorch-lightning==1.6.0
-#transformers==4.17.0
-#datasets==1.18.2
-#onnxruntime-gpu==1.10.0
-#loguru==0.6.0
-#
+scikit-learn==1.0.2
+nltk==3.7
+torch==1.10.2
+pytorch-lightning==1.6.0
+transformers==4.17.0
+datasets==1.18.2
+onnxruntime-gpu==1.10.0
+loguru==0.6.0
+
 ## Testing
 #coverage
 #codecov>=2.1
