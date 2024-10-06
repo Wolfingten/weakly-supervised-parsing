@@ -43,15 +43,38 @@ class AlignPTBYoonKimFormat:
         self.yk_data = pd.read_csv(yk_data_path, sep="\t", header=None)
 
     def row_mapper(self, save_data_path):
-        dict_mapper = self.ptb_data.reset_index().merge(self.yk_data.reset_index(), on=[0]).set_index("index_y")["index_x"].to_dict()
-        self.ptb_data.loc[self.ptb_data.index.map(dict_mapper)].to_csv(save_data_path, sep="\t", index=False, header=None)
+        dict_mapper = (
+            self.ptb_data.reset_index()
+            .merge(self.yk_data.reset_index(), on=[0])
+            .set_index("index_y")["index_x"]
+            .to_dict()
+        )
+        self.ptb_data.loc[self.ptb_data.index.map(dict_mapper)].to_csv(
+            save_data_path, sep="\t", index=False, header=None
+        )
         return dict_mapper
 
 
 currency_tags_words = ["#", "$", "C$", "A$"]
 ellipsis = ["*", "*?*", "0", "*T*", "*ICH*", "*U*", "*RNR*", "*EXP*", "*PPA*", "*NOT*"]
 punctuation_tags = [".", ",", ":", "-LRB-", "-RRB-", "''", "``"]
-punctuation_words = [".", ",", ":", "-LRB-", "-RRB-", "''", "``", "--", ";", "-", "?", "!", "...", "-LCB-", "-RCB-"]
+punctuation_words = [
+    ".",
+    ",",
+    ":",
+    "-LRB-",
+    "-RRB-",
+    "''",
+    "``",
+    "--",
+    ";",
+    "-",
+    "?",
+    "!",
+    "...",
+    "-LCB-",
+    "-RCB-",
+]
 
 
 def get_data_ptb(root, output):
@@ -97,7 +120,28 @@ def get_data_ptb(root, output):
     train_file_ids = []
     val_file_ids = []
     test_file_ids = []
-    train_section = ["02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"]
+    train_section = [
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+    ]
     val_section = ["22"]
     test_section = ["23"]
 
@@ -143,66 +187,148 @@ def get_data_ptb(root, output):
 
                 if include_punctuation:
                     keep_punctuation_tags = word_tags + punctuation_tags
-                    out = " ".join([token for token, pos_tag in sen_tree_copy.pos() if pos_tag in keep_punctuation_tags])
+                    out = " ".join(
+                        [
+                            token
+                            for token, pos_tag in sen_tree_copy.pos()
+                            if pos_tag in keep_punctuation_tags
+                        ]
+                    )
                 else:
                     out = sen_tree.pformat(margin=sys.maxsize).strip()
-                    while re.search("\(([A-Z0-9]{1,})((-|=)[A-Z0-9]*)*\s{1,}\)", out) is not None:
-                        out = re.sub("\(([A-Z0-9]{1,})((-|=)[A-Z0-9]*)*\s{1,}\)", "", out)
+                    while (
+                        re.search("\(([A-Z0-9]{1,})((-|=)[A-Z0-9]*)*\s{1,}\)", out)
+                        is not None
+                    ):
+                        out = re.sub(
+                            "\(([A-Z0-9]{1,})((-|=)[A-Z0-9]*)*\s{1,}\)", "", out
+                        )
                     out = out.replace(" )", ")")
                     out = re.sub("\s{2,}", " ", out)
 
                 f_out.write(out + "\n")
         f_out.close()
 
-    save_file(train_file_ids, PTB_TRAIN_GOLD_WITHOUT_PUNCTUATION_PATH, include_punctuation=False)
-    save_file(val_file_ids, PTB_VALID_GOLD_WITHOUT_PUNCTUATION_PATH, include_punctuation=False)
-    save_file(test_file_ids, PTB_TEST_GOLD_WITHOUT_PUNCTUATION_PATH, include_punctuation=False)
+    save_file(
+        train_file_ids,
+        PTB_TRAIN_GOLD_WITHOUT_PUNCTUATION_PATH,
+        include_punctuation=False,
+    )
+    save_file(
+        val_file_ids, PTB_VALID_GOLD_WITHOUT_PUNCTUATION_PATH, include_punctuation=False
+    )
+    save_file(
+        test_file_ids, PTB_TEST_GOLD_WITHOUT_PUNCTUATION_PATH, include_punctuation=False
+    )
 
     # Align PTB with Yoon Kim's row order
     ptb_train_index_mapper = AlignPTBYoonKimFormat(
-        ptb_data_path=PTB_TRAIN_GOLD_WITHOUT_PUNCTUATION_PATH, yk_data_path=YOON_KIM_TRAIN_GOLD_WITHOUT_PUNCTUATION_PATH
+        ptb_data_path=PTB_TRAIN_GOLD_WITHOUT_PUNCTUATION_PATH,
+        yk_data_path=YOON_KIM_TRAIN_GOLD_WITHOUT_PUNCTUATION_PATH,
     ).row_mapper(save_data_path=PTB_TRAIN_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH)
     ptb_valid_index_mapper = AlignPTBYoonKimFormat(
-        ptb_data_path=PTB_VALID_GOLD_WITHOUT_PUNCTUATION_PATH, yk_data_path=YOON_KIM_VALID_GOLD_WITHOUT_PUNCTUATION_PATH
+        ptb_data_path=PTB_VALID_GOLD_WITHOUT_PUNCTUATION_PATH,
+        yk_data_path=YOON_KIM_VALID_GOLD_WITHOUT_PUNCTUATION_PATH,
     ).row_mapper(save_data_path=PTB_VALID_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH)
     ptb_test_index_mapper = AlignPTBYoonKimFormat(
-        ptb_data_path=PTB_TEST_GOLD_WITHOUT_PUNCTUATION_PATH, yk_data_path=YOON_KIM_TEST_GOLD_WITHOUT_PUNCTUATION_PATH
+        ptb_data_path=PTB_TEST_GOLD_WITHOUT_PUNCTUATION_PATH,
+        yk_data_path=YOON_KIM_TEST_GOLD_WITHOUT_PUNCTUATION_PATH,
     ).row_mapper(save_data_path=PTB_TEST_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH)
 
     # Extract sentences without punctuation
-    ptb_train_without_punctuation = pd.read_csv(PTB_TRAIN_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH, sep="\t", header=None, names=["tree"])
+    ptb_train_without_punctuation = pd.read_csv(
+        PTB_TRAIN_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH,
+        sep="\t",
+        header=None,
+        names=["tree"],
+    )
     ptb_train_without_punctuation["tree"].apply(extract_sentence).to_csv(
         PTB_TRAIN_SENTENCES_WITHOUT_PUNCTUATION_PATH, index=False, sep="\t", header=None
     )
-    ptb_valid_without_punctuation = pd.read_csv(PTB_VALID_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH, sep="\t", header=None, names=["tree"])
+    ptb_valid_without_punctuation = pd.read_csv(
+        PTB_VALID_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH,
+        sep="\t",
+        header=None,
+        names=["tree"],
+    )
     ptb_valid_without_punctuation["tree"].apply(extract_sentence).to_csv(
         PTB_VALID_SENTENCES_WITHOUT_PUNCTUATION_PATH, index=False, sep="\t", header=None
     )
-    ptb_test_without_punctuation = pd.read_csv(PTB_TEST_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH, sep="\t", header=None, names=["tree"])
+    ptb_test_without_punctuation = pd.read_csv(
+        PTB_TEST_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH,
+        sep="\t",
+        header=None,
+        names=["tree"],
+    )
     ptb_test_without_punctuation["tree"].apply(extract_sentence).to_csv(
         PTB_TEST_SENTENCES_WITHOUT_PUNCTUATION_PATH, index=False, sep="\t", header=None
     )
 
-    save_file(train_file_ids, PTB_TRAIN_SENTENCES_WITH_PUNCTUATION_PATH, include_punctuation=True)
-    save_file(val_file_ids, PTB_VALID_SENTENCES_WITH_PUNCTUATION_PATH, include_punctuation=True)
-    save_file(test_file_ids, PTB_TEST_SENTENCES_WITH_PUNCTUATION_PATH, include_punctuation=True)
+    save_file(
+        train_file_ids,
+        PTB_TRAIN_SENTENCES_WITH_PUNCTUATION_PATH,
+        include_punctuation=True,
+    )
+    save_file(
+        val_file_ids,
+        PTB_VALID_SENTENCES_WITH_PUNCTUATION_PATH,
+        include_punctuation=True,
+    )
+    save_file(
+        test_file_ids,
+        PTB_TEST_SENTENCES_WITH_PUNCTUATION_PATH,
+        include_punctuation=True,
+    )
 
     # Extract sentences with punctuation
-    ptb_train_with_punctuation = pd.read_csv(PTB_TRAIN_SENTENCES_WITH_PUNCTUATION_PATH, sep="\t", header=None, names=["sentence"])
-    ptb_train_with_punctuation = ptb_train_with_punctuation.loc[ptb_train_with_punctuation.index.map(ptb_train_index_mapper)]
-    ptb_train_with_punctuation.to_csv(PTB_TRAIN_SENTENCES_WITH_PUNCTUATION_PATH, index=False, sep="\t", header=None)
-    ptb_valid_with_punctuation = pd.read_csv(PTB_VALID_SENTENCES_WITH_PUNCTUATION_PATH, sep="\t", header=None, names=["sentence"])
-    ptb_valid_with_punctuation = ptb_valid_with_punctuation.loc[ptb_valid_with_punctuation.index.map(ptb_valid_index_mapper)]
-    ptb_valid_with_punctuation.to_csv(PTB_VALID_SENTENCES_WITH_PUNCTUATION_PATH, index=False, sep="\t", header=None)
-    ptb_test_with_punctuation = pd.read_csv(PTB_TEST_SENTENCES_WITH_PUNCTUATION_PATH, sep="\t", header=None, names=["sentence"])
-    ptb_test_with_punctuation = ptb_test_with_punctuation.loc[ptb_test_with_punctuation.index.map(ptb_test_index_mapper)]
-    ptb_test_with_punctuation.to_csv(PTB_TEST_SENTENCES_WITH_PUNCTUATION_PATH, index=False, sep="\t", header=None)
+    ptb_train_with_punctuation = pd.read_csv(
+        PTB_TRAIN_SENTENCES_WITH_PUNCTUATION_PATH,
+        sep="\t",
+        header=None,
+        names=["sentence"],
+    )
+    #    ptb_train_with_punctuation = ptb_train_with_punctuation.loc[ptb_train_with_punctuation.index.map(ptb_train_index_mapper)]
+    ptb_train_with_punctuation.to_csv(
+        PTB_TRAIN_SENTENCES_WITH_PUNCTUATION_PATH, index=False, sep="\t", header=None
+    )
+    ptb_valid_with_punctuation = pd.read_csv(
+        PTB_VALID_SENTENCES_WITH_PUNCTUATION_PATH,
+        sep="\t",
+        header=None,
+        names=["sentence"],
+    )
+    #    ptb_valid_with_punctuation = ptb_valid_with_punctuation.loc[ptb_valid_with_punctuation.index.map(ptb_valid_index_mapper)]
+    ptb_valid_with_punctuation.to_csv(
+        PTB_VALID_SENTENCES_WITH_PUNCTUATION_PATH, index=False, sep="\t", header=None
+    )
+    ptb_test_with_punctuation = pd.read_csv(
+        PTB_TEST_SENTENCES_WITH_PUNCTUATION_PATH,
+        sep="\t",
+        header=None,
+        names=["sentence"],
+    )
+    #    ptb_test_with_punctuation = ptb_test_with_punctuation.loc[ptb_test_with_punctuation.index.map(ptb_test_index_mapper)]
+    ptb_test_with_punctuation.to_csv(
+        PTB_TEST_SENTENCES_WITH_PUNCTUATION_PATH, index=False, sep="\t", header=None
+    )
 
 
 def main(arguments):
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--ptb_path", help="Path to parsed/combined/wsj folder", type=str, default="./TEMP/corrected/parsed/combined/wsj/")
-    parser.add_argument("--output_path", help="Path to save processed files", type=str, default="./data/PROCESSED/english/")
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        "--ptb_path",
+        help="Path to parsed/combined/wsj folder",
+        type=str,
+        default="./TEMP/corrected/parsed/combined/wsj/",
+    )
+    parser.add_argument(
+        "--output_path",
+        help="Path to save processed files",
+        type=str,
+        default="./data/PROCESSED/english/",
+    )
     args = parser.parse_args(arguments)
     get_data_ptb(args.ptb_path, args.output_path)
 
