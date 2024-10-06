@@ -1,7 +1,7 @@
 PROJECT_DIR = "/nethome/jguertler/weakly_supervised_parser/"
 
-PTB_TREES_ROOT_DIR = "/data/users/jguertler/datasets/spmrl/GERMAN_SPMRL/golg/ptb/"
-PTB_SENTENCES_ROOT_DIR = "/data/users/jguertler/datasets/spmrl/GERMAN_SPMRL/golg/ptb/"
+PTB_TREES_ROOT_DIR = "/data/users/jguertler/datasets/spmrl/GERMAN_SPMRL/gold/ptb/"
+PTB_SENTENCES_ROOT_DIR = "/data/users/jguertler/datasets/spmrl/GERMAN_SPMRL/gold/ptb/"
 
 PTB_TRAIN_SENTENCES_WITH_PUNCTUATION_PATH = (
     PTB_SENTENCES_ROOT_DIR + "train/train.German.gold.ptb.tobeparsed.raw"
