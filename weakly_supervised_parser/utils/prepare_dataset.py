@@ -155,6 +155,8 @@ class PTBDataset:
 
     def train_validation_split(self, seed, test_size=0.5, shuffle=True):
         self.preprocess()
+        self.data["sentence"] = self.data["sentence"].str.strip()
+        self.data = self.data[self.data["sentence"].str.split().str.len() > 1]
         bootstrap_constituent_samples = self.seed_bootstrap_constituent()
         bootstrap_distituent_samples = self.seed_bootstrap_distituent()
         df = pd.concat([bootstrap_constituent_samples, bootstrap_distituent_samples], ignore_index=True)
