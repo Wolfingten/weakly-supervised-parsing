@@ -40,13 +40,13 @@ PTB_TEST_GOLD_WITHOUT_PUNCTUATION_PATH = (
 )
 
 PTB_TRAIN_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH = (
-    PTB_TREES_ROOT_DIR + "ptb-train-gold-without-punctuation-aligned.txt"
+    PTB_TREES_ROOT_DIR + "train/train_trees_without_punct.txt"
 )
 PTB_VALID_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH = (
-    PTB_TREES_ROOT_DIR + "ptb-valid-gold-without-punctuation-aligned.txt"
+    PTB_TREES_ROOT_DIR + "dev/valid_trees_without_punct.txt"
 )
 PTB_TEST_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH = (
-    PTB_TREES_ROOT_DIR + "ptb-test-gold-without-punctuation-aligned.txt"
+    PTB_TREES_ROOT_DIR + "test/test_trees_without_punct.txt"
 )
 
 YOON_KIM_TRAIN_GOLD_WITHOUT_PUNCTUATION_PATH = (
