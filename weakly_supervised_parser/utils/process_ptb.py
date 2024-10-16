@@ -79,71 +79,16 @@ punctuation_words = [
 
 def get_data_ptb(root, output):
     # tag filter is from https://github.com/yikangshen/PRPN/blob/master/data_ptb.py
-    word_tags = [
-        "CC",
-        "CD",
-        "DT",
-        "EX",
-        "FW",
-        "IN",
-        "JJ",
-        "JJR",
-        "JJS",
-        "LS",
-        "MD",
-        "NN",
-        "NNS",
-        "NNP",
-        "NNPS",
-        "PDT",
-        "POS",
-        "PRP",
-        "PRP$",
-        "RB",
-        "RBR",
-        "RBS",
-        "RP",
-        "SYM",
-        "TO",
-        "UH",
-        "VB",
-        "VBD",
-        "VBG",
-        "VBN",
-        "VBP",
-        "VBZ",
-        "WDT",
-        "WP",
-        "WP$",
-        "WRB",
-    ]
+    # cat train_gold_with_punct.proc | tr -s ' ' '\n' | grep -E '\(' | sort | uniq -c | sort -nr | awk '{print $2}' | sed 's/^[(]//' > tags.txt
+    with open(os.path.join(root, "train/tags.txt"), encoding="utf-8") as f:
+        word_tags = [t.strip() for t in f.readlines()]
+
     train_file_ids = []
     val_file_ids = []
     test_file_ids = []
-    train_section = [
-        "02",
-        "03",
-        "04",
-        "05",
-        "06",
-        "07",
-        "08",
-        "09",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
-        "17",
-        "18",
-        "19",
-        "20",
-        "21",
-    ]
-    val_section = ["22"]
-    test_section = ["23"]
+    train_section = ["train"]
+    val_section = ["dev"]
+    test_section = ["test"]
 
     for dir_name, _, file_list in os.walk(root, topdown=False):
         if dir_name.split("/")[-1] in train_section:
@@ -155,9 +100,10 @@ def get_data_ptb(root, output):
         else:
             continue
         for fname in file_list:
-            print(fname)
-            file_ids.append(os.path.join(dir_name, fname))
-            assert file_ids[-1].split(".")[-1] == "mrg"
+            if fname.split(".")[-1] == "proc":
+                print(fname)
+                file_ids.append(os.path.join(dir_name, fname))
+            # assert file_ids[-1].split(".")[-1] == "proc"
     print(len(train_file_ids), len(val_file_ids), len(test_file_ids))
 
     def del_tags(tree, word_tags):
@@ -221,19 +167,19 @@ def get_data_ptb(root, output):
         test_file_ids, PTB_TEST_GOLD_WITHOUT_PUNCTUATION_PATH, include_punctuation=False
     )
 
-    # Align PTB with Yoon Kim's row order
-    ptb_train_index_mapper = AlignPTBYoonKimFormat(
-        ptb_data_path=PTB_TRAIN_GOLD_WITHOUT_PUNCTUATION_PATH,
-        yk_data_path=YOON_KIM_TRAIN_GOLD_WITHOUT_PUNCTUATION_PATH,
-    ).row_mapper(save_data_path=PTB_TRAIN_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH)
-    ptb_valid_index_mapper = AlignPTBYoonKimFormat(
-        ptb_data_path=PTB_VALID_GOLD_WITHOUT_PUNCTUATION_PATH,
-        yk_data_path=YOON_KIM_VALID_GOLD_WITHOUT_PUNCTUATION_PATH,
-    ).row_mapper(save_data_path=PTB_VALID_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH)
-    ptb_test_index_mapper = AlignPTBYoonKimFormat(
-        ptb_data_path=PTB_TEST_GOLD_WITHOUT_PUNCTUATION_PATH,
-        yk_data_path=YOON_KIM_TEST_GOLD_WITHOUT_PUNCTUATION_PATH,
-    ).row_mapper(save_data_path=PTB_TEST_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH)
+    #    # Align PTB with Yoon Kim's row order
+    #    ptb_train_index_mapper = AlignPTBYoonKimFormat(
+    #        ptb_data_path=PTB_TRAIN_GOLD_WITHOUT_PUNCTUATION_PATH,
+    #        yk_data_path=YOON_KIM_TRAIN_GOLD_WITHOUT_PUNCTUATION_PATH,
+    #    ).row_mapper(save_data_path=PTB_TRAIN_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH)
+    #    ptb_valid_index_mapper = AlignPTBYoonKimFormat(
+    #        ptb_data_path=PTB_VALID_GOLD_WITHOUT_PUNCTUATION_PATH,
+    #        yk_data_path=YOON_KIM_VALID_GOLD_WITHOUT_PUNCTUATION_PATH,
+    #    ).row_mapper(save_data_path=PTB_VALID_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH)
+    #    ptb_test_index_mapper = AlignPTBYoonKimFormat(
+    #        ptb_data_path=PTB_TEST_GOLD_WITHOUT_PUNCTUATION_PATH,
+    #        yk_data_path=YOON_KIM_TEST_GOLD_WITHOUT_PUNCTUATION_PATH,
+    #    ).row_mapper(save_data_path=PTB_TEST_GOLD_WITHOUT_PUNCTUATION_ALIGNED_PATH)
 
     # Extract sentences without punctuation
     ptb_train_without_punctuation = pd.read_csv(

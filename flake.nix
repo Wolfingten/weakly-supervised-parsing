@@ -60,8 +60,11 @@
           # https://discourse.nixos.org/t/pytorch-installed-via-pip-does-not-pick-up-cuda/30744/2
           # https://github.com/clementpoiret/nix-python-devenv/blob/main/flake.nix
           env.LD_LIBRARY_PATH = "${pkgs.gcc-unwrapped.lib}/lib64:${pkgs.libz}/lib:/run/opengl-driver/lib:/run/opengl-driver-32/lib";
+          env.PYTHONPATH = "/home/wolfingten/projects/weakly-supervised-parsing/";
 
           enterShell = ''
+            python -m nltk.downloader ptb
+            python -m nltk.downloader stopwords
           '';
         })
       ];
