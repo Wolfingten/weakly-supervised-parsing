@@ -1,3 +1,7 @@
+#!/bin/sh
+
+./process.sh
+
 python3 -m nltk.downloader stopwords
 
 export PYTHONPATH=/nethome/jguertler/weakly-supervised-parsing/
