@@ -70,7 +70,7 @@ def remove_punctuation_trees(text):
     no_punct = re.sub(
         r"\(\$(.*?)\)[ \t\r\f\v]|[ \t\r\f\v]\(\$(.*?)\)|\(\$(.*?)\)", "", text
     )
-    if not no_punct.startswith("(S"):
+    if not no_punct.startswith("(S "):
         no_punct = "(S " + no_punct.strip() + ")\n"
     return no_punct
 
