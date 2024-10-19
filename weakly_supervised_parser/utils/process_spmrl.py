@@ -2,6 +2,7 @@ import os
 import re
 import string
 import argparse
+from typing import no_type_check
 
 from weakly_supervised_parser.settings import PTB_SENTENCES_ROOT_DIR, PTB_TREES_ROOT_DIR
 
@@ -68,9 +69,12 @@ def remove_punctuation(text):
 
 
 def remove_punctuation_trees(text):
-    return re.sub(
+    no_punct = re.sub(
         r"\(\$(.*?)\)[ \t\r\f\v]|[ \t\r\f\v]\(\$(.*?)\)|\(\$(.*?)\)", "", text
     )
+    if not no_punct.startswith("(S"):
+        no_punct = "(S " + no_punct.strip() + ")"
+    return no_punct
 
 
 if __name__ == "__main__":
