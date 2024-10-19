@@ -79,7 +79,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--ptb_path",
-        default="/home/wolfingten/projects/data/spmrl/GERMAN_SPMRL/gold/ptb/",
+        default="/data/users/jguertler/datasets/spmrl/GERMAN_SPMRL/gold/ptb/",
     )
     args = parser.parse_args()
     save_with_mod(
