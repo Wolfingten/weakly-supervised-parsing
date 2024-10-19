@@ -1,6 +1,6 @@
 #!/bin/sh
 
-./process.sh
+#./process.sh
 
 python3 -m nltk.downloader stopwords
 
