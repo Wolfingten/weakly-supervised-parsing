@@ -54,6 +54,8 @@ def delete_tiger(text):
         no_vroot = re.sub(r"^\(VROOT\s*|\)$", "", text)
     else:
         no_vroot = text
+    if not no_vroot.startswith("(S"):
+        no_vroot = "(S " + no_vroot + ")"
     return re.sub(r"##(.*?)##", "", no_vroot)
 
 
