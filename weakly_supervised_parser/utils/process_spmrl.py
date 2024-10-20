@@ -52,7 +52,8 @@ def save_with_mod(input_paths, output_paths, func):
 # TODO: remove tiger syntax info from trees
 def delete_tiger(text):
     if text.startswith("(VROOT"):
-        no_vroot = re.sub(r"^\(VROOT\s*|\)$", "", text)
+        no_vroot = text
+    #        no_vroot = re.sub(r"VROOT", "S", text)
     else:
         no_vroot = text
     return re.sub(r"##(.*?)##", "", no_vroot)
@@ -70,8 +71,8 @@ def remove_punctuation_trees(text):
     no_punct = re.sub(
         r"\(\$(.*?)\)[ \t\r\f\v]|[ \t\r\f\v]\(\$(.*?)\)|\(\$(.*?)\)", "", text
     )
-    if not no_punct.startswith("(S "):
-        no_punct = "(S " + no_punct.strip() + ")\n"
+    #    if not no_punct.startswith("(S "):
+    #        no_punct = "(S " + no_punct.strip() + ")\n"
     return no_punct
 
 
