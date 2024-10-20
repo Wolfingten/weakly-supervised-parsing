@@ -8,7 +8,7 @@ python /nethome/jguertler/weakly-supervised-parsing/weakly_supervised_parser/inf
     --use_inside \
     --model_name_or_path roberta-base \
     --inside_max_seq_length 256 \
-    --save_path /data/users/jguertler/outputs/ws_parser/inside.txt \
+    --save_path /data/users/jguertler/outputs/ws_parser/ger/inside.txt \
     --scale_axis 1 \
     --predict_batch_size 32
 
@@ -16,7 +16,7 @@ python /nethome/jguertler/weakly-supervised-parsing/weakly_supervised_parser/inf
     --use_inside_self_train \
     --model_name_or_path roberta-base \
     --inside_max_seq_length 256 \
-    --save_path /data/users/jguertler/outputs/ws_parser/inside_self_train.txt \
+    --save_path /data/users/jguertler/outputs/ws_parser/ger/inside_self_train.txt \
     --scale_axis 1 \
     --predict_batch_size 32
 
@@ -24,7 +24,7 @@ python /nethome/jguertler/weakly-supervised-parsing/weakly_supervised_parser/inf
     --use_outside \
     --model_name_or_path roberta-base \
     --inside_max_seq_length 256 \
-    --save_path /data/users/jguertler/outputs/ws_parser/outside.txt \
+    --save_path /data/users/jguertler/outputs/ws_parser/ger/outside.txt \
     --scale_axis 1 \
     --predict_batch_size 32
 
@@ -32,6 +32,6 @@ python /nethome/jguertler/weakly-supervised-parsing/weakly_supervised_parser/inf
     --use_inside_outside_co_train \
     --model_name_or_path roberta-base \
     --inside_max_seq_length 256 \
-    --save_path /data/users/jguertler/outputs/ws_parser/inside_outside_co_train.txt \
+    --save_path /data/users/jguertler/outputs/ws_parser/ger/inside_outside_co_train.txt \
     --scale_axis 1 \
     --predict_batch_size 32
