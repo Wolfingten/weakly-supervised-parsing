@@ -35,6 +35,7 @@ class InsideOutsideStringClassifier:
         self.model_name_or_path = model_name_or_path
         self.num_labels = num_labels
         self.max_seq_length = max_seq_length
+        self.logger = wandb_logger
 
     def fit(
         self,
@@ -46,7 +47,7 @@ class InsideOutsideStringClassifier:
         enable_progress_bar: bool = True,
         enable_model_summary: bool = False,
         enable_checkpointing: bool = False,
-        logger=wandb_logger,
+        logger: bool = False,
         accelerator: str = "auto",
         train_batch_size: int = 32,
         eval_batch_size: int = 32,
@@ -74,7 +75,7 @@ class InsideOutsideStringClassifier:
             eval_batch_size=eval_batch_size,
         )
 
-        wandb_logger.watch(model)
+        self.logger.watch(model, log="all")
 
         seed_everything(seed, workers=True)
 
@@ -92,7 +93,7 @@ class InsideOutsideStringClassifier:
             enable_progress_bar=enable_progress_bar,
             enable_model_summary=enable_model_summary,
             enable_checkpointing=enable_checkpointing,
-            logger=logger,
+            logger=self.logger,
         )
         trainer.fit(model, data_module)
         trainer.validate(model, data_module.val_dataloader())
