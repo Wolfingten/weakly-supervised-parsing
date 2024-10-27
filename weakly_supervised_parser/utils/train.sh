@@ -1,6 +1,5 @@
 #!/bin/sh
 
-git checkout main
 
 python3 -m nltk.downloader stopwords
 
