@@ -92,11 +92,10 @@ class InsideOutsideStringClassifier:
 
         class TrainingLossLoggerCallback(Callback):
             def on_train_epoch_end(self, trainer, pl_module):
-                # Retrieve training loss from trainer's logger
-                train_loss = trainer.callback_metrics.get("train_loss_epoch")
-                if train_loss is not None:
-                    # Log the training loss to wandb
-                    wandb_logger.log_metrics({"train_loss": train_loss.item()})
+                epoch_mean = torch.stack(pl_module.training_step_outputs).mean()
+                pl_module.log("training_epoch_mean", epoch_mean)
+                # free up the memory
+                pl_module.training_step_outputs.clear()
 
         seed_everything(seed, workers=True)
 
