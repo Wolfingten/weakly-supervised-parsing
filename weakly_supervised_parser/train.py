@@ -324,7 +324,9 @@ def cli_main():
 
     logger.info("Training the inside-outside model w/ co-training!")
     co_training_clf.fit(
-        inside_strings=inside_strings, outside_strings=outside_strings, y=labels,
+        inside_strings=inside_strings,
+        outside_strings=outside_strings,
+        y=labels,
         run_name=f"{args.run_name}: inside-outside w/ co-training",
     )
 

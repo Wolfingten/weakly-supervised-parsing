@@ -54,7 +54,7 @@ class InsideOutsideStringClassifier:
     ):
 
         wandb_logger = WandbLogger(
-            project="wsparser InsideOutsideStringClassifier",
+            project="wsparser",
             name=run_name,
             log_model="all",
         )
