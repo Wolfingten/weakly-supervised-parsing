@@ -32,6 +32,17 @@ logging.set_verbosity_error()
 #            wandb_logger.log_metrics({"train_loss": train_loss.item()})
 
 
+class MetricsCallback(Callback):
+    """PyTorch Lightning metric callback."""
+
+    def __init__(self):
+        super().__init__()
+        self.metrics = []
+
+    def on_validation_end(self, trainer, pl_module):
+        self.metrics.append(trainer.callback_metrics)
+
+
 class InsideOutsideStringClassifier:
     def __init__(
         self, model_name_or_path: str, num_labels: int = 2, max_seq_length: int = 256
@@ -94,7 +105,8 @@ class InsideOutsideStringClassifier:
         callbacks.append(
             EarlyStopping(monitor="val_loss", patience=2, mode="min", check_finite=True)
         )
-        callbacks.append(TrainingLossLoggerCallback())
+        callbacks.append(MetricsCallback())
+        #        callbacks.append(TrainingLossLoggerCallback())
         # callbacks.append(ModelCheckpoint(monitor="val_loss", dirpath=outputdir, filename=filename, save_top_k=1, save_weights_only=True, mode="min"))
 
         trainer = Trainer(
