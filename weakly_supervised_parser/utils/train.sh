@@ -1,6 +1,5 @@
 #!/bin/sh
 
-git checkout spmrl-german
 
 python3 -m nltk.downloader stopwords
 
