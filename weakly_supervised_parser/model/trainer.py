@@ -98,15 +98,14 @@ class InsideOutsideStringClassifier:
             enable_checkpointing=enable_checkpointing,
             logger=wandb_logger,
             track_grad_norm=2,
-            log_every_n_steps=1,
-            fast_dev_run=100,
+            log_every_n_steps=10,
         )
         trainer.fit(model, data_module)
         trainer.validate(model, data_module.val_dataloader())
 
-        wandb.finish()
-
         train_batch = next(iter(data_module.train_dataloader()))
+
+        wandb.finish()
 
         model.to_onnx(
             file_path=f"{outputdir}/{filename}.onnx",
