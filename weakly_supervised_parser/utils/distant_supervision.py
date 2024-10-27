@@ -30,11 +30,19 @@ class RuleBasedHeuristic:
     def augment_using_most_frequent_starting_token(self, N=1):
         first_token = []
         for sentence in self.corpus:
+            print(sentence)
             first_token.append(sentence.split()[0])
         return Counter(first_token).most_common(N)
 
     def get_top_tokens(self, top_most_common_ptb=None):
         out = set(stopwords.words("english"))
         if top_most_common_ptb:
-            out.update([token for token, counts in self.augment_using_most_frequent_starting_token(N=top_most_common_ptb)])
+            out.update(
+                [
+                    token
+                    for token, counts in self.augment_using_most_frequent_starting_token(
+                        N=top_most_common_ptb
+                    )
+                ]
+            )
         return out

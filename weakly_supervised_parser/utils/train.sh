@@ -1,6 +1,11 @@
+#!/bin/sh
+
+#./process.sh
+
 python3 -m nltk.downloader stopwords
 
 export PYTHONPATH=/nethome/jguertler/weakly-supervised-parsing/
+export WANDB_API_KEY="$(cat /nethome/jguertler/.secrets/wandb.key)"
 
 export MODEL_PATH=/data/users/jguertler/models/ws_parser/
 export TRAIN_SENTENCES_PATH=/data/users/jguertler/datasets/ptb_flat/ws_parser/sentences/ptb-train-sentences-without-punctuation.txt
@@ -25,4 +30,5 @@ python3 /nethome/jguertler/weakly-supervised-parsing/weakly_supervised_parser/tr
     --lower_threshold 0.005 \
     --num_train_rows 100 \
     --num_valid_examples 100 \
-    --seed 42
+    --seed 42 \
+    --run_name "orig"

@@ -4,11 +4,13 @@ import torch
 import datasets
 import numpy as np
 import pandas as pd
+import wandb
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 from pytorch_lightning import Trainer, seed_everything
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint, Callback
+from pytorch_lightning.loggers import WandbLogger
 from transformers import AutoTokenizer, logging
 
 from onnxruntime import InferenceSession
@@ -40,7 +42,7 @@ class InsideOutsideStringClassifier:
         devices: int = 1,
         enable_progress_bar: bool = True,
         enable_model_summary: bool = False,
-        enable_checkpointing: bool = False,
+        enable_checkpointing: bool = True,
         logger: bool = False,
         accelerator: str = "auto",
         train_batch_size: int = 32,
@@ -49,7 +51,14 @@ class InsideOutsideStringClassifier:
         max_epochs: int = 10,
         dataloader_num_workers: int = 16,
         seed: int = 42,
+        run_name: str = "InsideOutsideStringClassifier",
     ):
+
+        wandb_logger = WandbLogger(
+            project="wsparser",
+            name=run_name,
+            log_model="all",
+        )
 
         data_module = DataModule(
             model_name_or_path=self.model_name_or_path,
@@ -69,6 +78,8 @@ class InsideOutsideStringClassifier:
             eval_batch_size=eval_batch_size,
         )
 
+        # wandb_logger.watch(model, log="all")
+
         seed_everything(seed, workers=True)
 
         callbacks = []
@@ -85,12 +96,16 @@ class InsideOutsideStringClassifier:
             enable_progress_bar=enable_progress_bar,
             enable_model_summary=enable_model_summary,
             enable_checkpointing=enable_checkpointing,
-            logger=logger,
+            logger=wandb_logger,
+            track_grad_norm=2,
+            log_every_n_steps=10,
         )
         trainer.fit(model, data_module)
         trainer.validate(model, data_module.val_dataloader())
 
         train_batch = next(iter(data_module.train_dataloader()))
+
+        wandb.finish()
 
         model.to_onnx(
             file_path=f"{outputdir}/{filename}.onnx",
@@ -141,33 +156,39 @@ class InsideOutsideStringClassifier:
         with torch.no_grad():
             return softmax(self.model.run(None, inputs)[0], axis=scale_axis)
 
-#    def predict_proba(self, spans, scale_axis, predict_batch_size):
-#        if spans.shape[0] > predict_batch_size:
-#            output = []
-#            span_batches = np.array_split(spans, ceil(spans.shape[0] / predict_batch_size))
-#            for span_batch in span_batches:
-#                output.extend(self.process_spans(span_batch, scale_axis))
-#            return np.vstack(output)
-#        else:
-#            return self.process_spans(spans, scale_axis)
+    #    def predict_proba(self, spans, scale_axis, predict_batch_size):
+    #        if spans.shape[0] > predict_batch_size:
+    #            output = []
+    #            span_batches = np.array_split(spans, ceil(spans.shape[0] / predict_batch_size))
+    #            for span_batch in span_batches:
+    #                output.extend(self.process_spans(span_batch, scale_axis))
+    #            return np.vstack(output)
+    #        else:
+    #            return self.process_spans(spans, scale_axis)
 
     def predict_proba(self, spans, scale_axis, predict_batch_size):
         # n_spans = 150
         n_spans = spans.shape[0]
         if n_spans > predict_batch_size:
             # add padding so all inputs can be passed to the model
-            n_padding = (-(-n_spans // predict_batch_size) * predict_batch_size - n_spans)
-            spans = pd.concat([spans, pd.DataFrame(["<pad>"]*n_padding, columns=spans.columns)], ignore_index=True)
+            n_padding = -(-n_spans // predict_batch_size) * predict_batch_size - n_spans
+            spans = pd.concat(
+                [spans, pd.DataFrame(["<pad>"] * n_padding, columns=spans.columns)],
+                ignore_index=True,
+            )
             output = []
             # spans.shape[0] = 160 because padding
             span_batches = np.array_split(spans, spans.shape[0] // predict_batch_size)
             for span_batch in span_batches:
                 output.extend(self.process_spans(span_batch, scale_axis))
-            return np.vstack(output)[:n_spans:] # truncate padding
+            return np.vstack(output)[:n_spans:]  # truncate padding
         else:
             n_padding = predict_batch_size - n_spans
-            spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
-            return self.process_spans(spans, scale_axis)[:n_spans:] # truncate padding
+            spans = pd.concat(
+                [spans, pd.DataFrame(["na"] * n_padding, columns=spans.columns)],
+                ignore_index=True,
+            )
+            return self.process_spans(spans, scale_axis)[:n_spans:]  # truncate padding
 
     def predict(self, spans, scale_axis, predict_batch_size):
         return self.predict_proba(spans, scale_axis, predict_batch_size).argmax(axis=1)
