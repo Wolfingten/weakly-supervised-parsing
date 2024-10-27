@@ -5,6 +5,7 @@
 python3 -m nltk.downloader stopwords
 
 export PYTHONPATH=/nethome/jguertler/weakly-supervised-parsing/
+export WANDB_API_KEY="$(cat /nethome/jguertler/.secrets/wandb.key)"
 
 export MODEL_PATH=/data/users/jguertler/models/ws_parser/ger/
 export TRAIN_SENTENCES_PATH=/data/users/jguertler/datasets/spmrl/GERMAN_SPMRL/gold/ptb/train/train.German.gold.ptb.tobeparsed.raw
