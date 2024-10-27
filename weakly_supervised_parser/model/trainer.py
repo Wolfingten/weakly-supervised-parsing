@@ -4,6 +4,7 @@ import torch
 import datasets
 import numpy as np
 import pandas as pd
+import wandb
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -40,7 +41,7 @@ class InsideOutsideStringClassifier:
         filename: str,
         devices: int = 1,
         enable_progress_bar: bool = True,
-        enable_model_summary: bool = True,
+        enable_model_summary: bool = False,
         enable_checkpointing: bool = True,
         logger: bool = False,
         accelerator: str = "auto",
@@ -98,9 +99,12 @@ class InsideOutsideStringClassifier:
             logger=wandb_logger,
             track_grad_norm=2,
             log_every_n_steps=10,
+            fast_dev_run=5,
         )
         trainer.fit(model, data_module)
         trainer.validate(model, data_module.val_dataloader())
+
+        wandb.finish()
 
         train_batch = next(iter(data_module.train_dataloader()))
 
