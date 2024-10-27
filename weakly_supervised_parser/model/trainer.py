@@ -93,6 +93,7 @@ class InsideOutsideStringClassifier:
             enable_progress_bar=enable_progress_bar,
             enable_model_summary=enable_model_summary,
             enable_checkpointing=enable_checkpointing,
+            track_grad_norm=2,
             logger=self.logger,
         )
         trainer.fit(model, data_module)
