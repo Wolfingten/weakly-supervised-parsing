@@ -23,24 +23,15 @@ from weakly_supervised_parser.model.span_classifier import LightningModel
 logging.set_verbosity_error()
 
 
-# class TrainingLossLoggerCallback(Callback):
-#    def on_train_epoch_end(self, trainer, pl_module):
-#        # Retrieve training loss from trainer's logger
-#        train_loss = trainer.callback_metrics.get("train_loss_epoch")
-#        if train_loss is not None:
-#            # Log the training loss to wandb
-#            wandb_logger.log_metrics({"train_loss": train_loss.item()})
-
-
-class MetricsCallback(Callback):
-    """PyTorch Lightning metric callback."""
-
-    def __init__(self):
-        super().__init__()
-        self.metrics = []
-
-    def on_validation_end(self, trainer, pl_module):
-        self.metrics.append(trainer.callback_metrics)
+# class MetricsCallback(Callback):
+#    """PyTorch Lightning metric callback."""
+#
+#    def __init__(self):
+#        super().__init__()
+#        self.metrics = []
+#
+#    def on_validation_end(self, trainer, pl_module):
+#        self.metrics.append(trainer.callback_metrics)
 
 
 class InsideOutsideStringClassifier:
@@ -99,14 +90,22 @@ class InsideOutsideStringClassifier:
 
         wandb_logger.watch(model, log="all")
 
+        class TrainingLossLoggerCallback(Callback):
+            def on_train_epoch_end(self, trainer, pl_module):
+                # Retrieve training loss from trainer's logger
+                train_loss = trainer.callback_metrics.get("train_loss_epoch")
+                if train_loss is not None:
+                    # Log the training loss to wandb
+                    wandb_logger.log_metrics({"train_loss": train_loss.item()})
+
         seed_everything(seed, workers=True)
 
         callbacks = []
         callbacks.append(
             EarlyStopping(monitor="val_loss", patience=2, mode="min", check_finite=True)
         )
-        callbacks.append(MetricsCallback())
-        #        callbacks.append(TrainingLossLoggerCallback())
+        #        callbacks.append(MetricsCallback())
+        callbacks.append(TrainingLossLoggerCallback())
         # callbacks.append(ModelCheckpoint(monitor="val_loss", dirpath=outputdir, filename=filename, save_top_k=1, save_weights_only=True, mode="min"))
 
         trainer = Trainer(
