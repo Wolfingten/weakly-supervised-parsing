@@ -90,12 +90,13 @@ class InsideOutsideStringClassifier:
 
         wandb_logger.watch(model, log="all")
 
-        #        class TrainingLossLoggerCallback(Callback):
-        #            def on_train_epoch_end(self, trainer, pl_module):
-        #                epoch_mean = torch.stack(pl_module.training_step_outputs).mean()
-        #                pl_module.log("training_epoch_mean", epoch_mean)
-        #                # free up the memory
-        #                pl_module.training_step_outputs.clear()
+        class TrainingLossLoggerCallback(Callback):
+            def on_train_epoch_end(self, trainer, pl_module, outputs):
+                train_loss = outputs.get("loss")
+                if train_loss is not None:
+                    trainer.logger.log_metrics(
+                        {"train_loss": train_loss.item()}, step=trainer.global_step
+                    )
 
         seed_everything(seed, workers=True)
 
@@ -104,7 +105,7 @@ class InsideOutsideStringClassifier:
             EarlyStopping(monitor="val_loss", patience=2, mode="min", check_finite=True)
         )
         #        callbacks.append(MetricsCallback())
-        #        callbacks.append(TrainingLossLoggerCallback())
+        callbacks.append(TrainingLossLoggerCallback())
         # callbacks.append(ModelCheckpoint(monitor="val_loss", dirpath=outputdir, filename=filename, save_top_k=1, save_weights_only=True, mode="min"))
 
         trainer = Trainer(
