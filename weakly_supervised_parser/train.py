@@ -200,7 +200,7 @@ def cli_main():
     )
 
     logger.info("Training the inside model!")
-    wandb_logger.watch(inside_model, log="all")
+    wandb_logger.watch(inside_model)
     inside_model.fit(
         train_df=train,
         eval_df=validation,
@@ -215,8 +215,6 @@ def cli_main():
         filename="inside_model",
         logger=wandb_logger,
     )
-
-    wandb_logger.watch(inside_model)
 
     # -----------------------------------
     # train inside model w/ self-training
