@@ -8,7 +8,7 @@ import pandas as pd
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 from pytorch_lightning import Trainer, seed_everything
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint, Callback
 from pytorch_lightning.loggers import WandbLogger
 from transformers import AutoTokenizer, logging
 
@@ -25,6 +25,15 @@ wandb_logger = WandbLogger(
 
 # Disable model checkpoint warnings
 logging.set_verbosity_error()
+
+
+class TrainingLossLoggerCallback(Callback):
+    def on_train_epoch_end(self, trainer, pl_module):
+        # Retrieve training loss from trainer's logger
+        train_loss = trainer.callback_metrics.get("train_loss_epoch")
+        if train_loss is not None:
+            # Log the training loss to wandb
+            wandb_logger.log_metrics({"train_loss": train_loss.item()})
 
 
 class InsideOutsideStringClassifier:
@@ -83,6 +92,7 @@ class InsideOutsideStringClassifier:
         callbacks.append(
             EarlyStopping(monitor="val_loss", patience=2, mode="min", check_finite=True)
         )
+        callbacks.append(TrainingLossLoggerCallback())
         # callbacks.append(ModelCheckpoint(monitor="val_loss", dirpath=outputdir, filename=filename, save_top_k=1, save_weights_only=True, mode="min"))
 
         trainer = Trainer(
