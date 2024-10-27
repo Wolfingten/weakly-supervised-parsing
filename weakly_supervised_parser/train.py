@@ -180,6 +180,13 @@ def cli_main():
         help="Whether to enable progress bar for the Trainer or not",
     )
 
+    parser.add_argument(
+        "--run_name",
+        default=True,
+        type=str,
+        help="Name of training run for the logger",
+    )
+
     args = parser.parse_args()
 
     # -------------------
@@ -209,6 +216,7 @@ def cli_main():
         dataloader_num_workers=args.num_workers,
         outputdir=args.output_dir,
         filename="inside_model",
+        run_name=f"{args.run_name}: inside model",
     )
 
     # -----------------------------------

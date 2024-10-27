@@ -30,4 +30,5 @@ python3 /nethome/jguertler/weakly-supervised-parsing/weakly_supervised_parser/tr
     --lower_threshold 0.005 \
     --num_train_rows 100 \
     --num_valid_examples 100 \
-    --seed 42
+    --seed 42 \
+    --run_name "first"

@@ -19,21 +19,17 @@ from weakly_supervised_parser.model.data_module_loader import DataModule
 from weakly_supervised_parser.model.span_classifier import LightningModel
 
 
-wandb_logger = WandbLogger(
-    project="wsparser InsideOutsideStringClassifier", log_model="all"
-)
-
 # Disable model checkpoint warnings
 logging.set_verbosity_error()
 
 
-class TrainingLossLoggerCallback(Callback):
-    def on_train_epoch_end(self, trainer, pl_module):
-        # Retrieve training loss from trainer's logger
-        train_loss = trainer.callback_metrics.get("train_loss_epoch")
-        if train_loss is not None:
-            # Log the training loss to wandb
-            wandb_logger.log_metrics({"train_loss": train_loss.item()})
+# class TrainingLossLoggerCallback(Callback):
+#    def on_train_epoch_end(self, trainer, pl_module):
+#        # Retrieve training loss from trainer's logger
+#        train_loss = trainer.callback_metrics.get("train_loss_epoch")
+#        if train_loss is not None:
+#            # Log the training loss to wandb
+#            wandb_logger.log_metrics({"train_loss": train_loss.item()})
 
 
 class InsideOutsideStringClassifier:
@@ -44,7 +40,6 @@ class InsideOutsideStringClassifier:
         self.model_name_or_path = model_name_or_path
         self.num_labels = num_labels
         self.max_seq_length = max_seq_length
-        self.logger = wandb_logger
 
     def fit(
         self,
@@ -64,7 +59,14 @@ class InsideOutsideStringClassifier:
         max_epochs: int = 10,
         dataloader_num_workers: int = 16,
         seed: int = 42,
+        run_name: str = "InsideOutsideStringClassifier",
     ):
+
+        wandb_logger = WandbLogger(
+            project="wsparser InsideOutsideStringClassifier",
+            name=run_name,
+            log_model="all",
+        )
 
         data_module = DataModule(
             model_name_or_path=self.model_name_or_path,
@@ -84,7 +86,7 @@ class InsideOutsideStringClassifier:
             eval_batch_size=eval_batch_size,
         )
 
-        self.logger.watch(model, log="all")
+        wandb_logger.watch(model, log="all")
 
         seed_everything(seed, workers=True)
 
@@ -104,7 +106,7 @@ class InsideOutsideStringClassifier:
             enable_model_summary=enable_model_summary,
             enable_checkpointing=enable_checkpointing,
             track_grad_norm=2,
-            logger=self.logger,
+            logger=wandb_logger,
         )
         trainer.fit(model, data_module)
         trainer.validate(model, data_module.val_dataloader())
