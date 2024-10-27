@@ -117,6 +117,7 @@ class InsideOutsideStringClassifier:
             enable_checkpointing=enable_checkpointing,
             track_grad_norm=2,
             logger=wandb_logger,
+            log_every_n_steps=10,
         )
         trainer.fit(model, data_module)
         trainer.validate(model, data_module.val_dataloader())
