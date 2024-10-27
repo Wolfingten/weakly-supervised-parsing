@@ -6,13 +6,23 @@ from weakly_supervised_parser.settings import TRAINED_MODEL_PATH
 
 
 class CoTrainingClassifier:
-    def __init__(self, inside_model, outside_model, pos: int = -1, neg: int = -1, num_iterations: int = 2, pool_of_unlabeled_samples: int = 1000):
+    def __init__(
+        self,
+        inside_model,
+        outside_model,
+        pos: int = -1,
+        neg: int = -1,
+        num_iterations: int = 2,
+        pool_of_unlabeled_samples: int = 1000,
+    ):
         self.inside_model = inside_model
         self.outside_model = outside_model
 
         # if they only specify one of neg or pos, throw an exception
         if (pos == -1 and neg != -1) or (pos != -1 and neg == -1):
-            raise ValueError("Current implementation supports either both p and n being specified, or neither")
+            raise ValueError(
+                "Current implementation supports either both p and n being specified, or neither"
+            )
 
         self.pos_ = pos
         self.neg_ = neg
@@ -21,7 +31,7 @@ class CoTrainingClassifier:
 
         random.seed()
 
-    def fit(self, inside_strings, outside_strings, y):
+    def fit(self, inside_strings, outside_strings, y, run_name):
         # we need y to be a numpy array so we can do more complex slicing
         y = np.asarray(y)
 
@@ -40,7 +50,12 @@ class CoTrainingClassifier:
                 self.neg_ = 1
                 self.pos_ = round(self.neg_ / neg_pos_ratio)
 
-        assert self.pos_ > 0 and self.neg_ > 0 and self.num_iterations > 0 and self.pool_of_unlabeled_samples > 0
+        assert (
+            self.pos_ > 0
+            and self.neg_ > 0
+            and self.num_iterations > 0
+            and self.pool_of_unlabeled_samples > 0
+        )
 
         # the set of unlabeled samples
         unlabeled_samples = [i for i, y_i in enumerate(y) if y_i == -1]
@@ -49,7 +64,9 @@ class CoTrainingClassifier:
         random.shuffle(unlabeled_samples)
 
         # this is U' in paper
-        U_ = unlabeled_samples[-min(len(unlabeled_samples), self.pool_of_unlabeled_samples) :]
+        U_ = unlabeled_samples[
+            -min(len(unlabeled_samples), self.pool_of_unlabeled_samples) :
+        ]
 
         # the samples that are initially labeled
         labeled_samples = [i for i, y_i in enumerate(y) if y_i != -1]
@@ -63,13 +80,31 @@ class CoTrainingClassifier:
         while idx != self.num_iterations and unlabeled_samples:
             idx += 1
 
-            train_inside = pd.DataFrame(dict(sentence=inside_strings[labeled_samples], label=y[labeled_samples]))
+            train_inside = pd.DataFrame(
+                dict(sentence=inside_strings[labeled_samples], label=y[labeled_samples])
+            )
 
-            self.inside_model.fit(train_df=train_inside, eval_df=None, outputdir=TRAINED_MODEL_PATH, filename=f"inside_model_co_trained_{idx+1}")
+            self.inside_model.fit(
+                train_df=train_inside,
+                eval_df=None,
+                outputdir=TRAINED_MODEL_PATH,
+                filename=f"inside_model_co_trained_{idx+1}",
+                run_name=f"{run_name} (inside {idx+1})",
+            )
 
-            train_outside = pd.DataFrame(dict(sentence=outside_strings[labeled_samples], label=y[labeled_samples]))
+            train_outside = pd.DataFrame(
+                dict(
+                    sentence=outside_strings[labeled_samples], label=y[labeled_samples]
+                )
+            )
 
-            self.outside_model.fit(train_df=train_outside, eval_df=None, outputdir=TRAINED_MODEL_PATH, filename=f"outside_model_co_trained_{idx+1}")
+            self.outside_model.fit(
+                train_df=train_outside,
+                eval_df=None,
+                outputdir=TRAINED_MODEL_PATH,
+                filename=f"outside_model_co_trained_{idx+1}",
+                run_name=f"{run_name} (outside {idx+1})",
+            )
 
             inside_prob = self.inside_model.predict_proba(inside_strings[U_])
             outside_prob = self.outside_model.predict_proba(outside_strings[U_])
@@ -107,18 +142,34 @@ class CoTrainingClassifier:
                 U_.append(unlabeled_samples.pop())
 
         # let's fit our final model
-        train_inside = pd.DataFrame(dict(sentence=inside_strings[labeled_samples], label=y[labeled_samples]))
+        train_inside = pd.DataFrame(
+            dict(sentence=inside_strings[labeled_samples], label=y[labeled_samples])
+        )
 
         train_inside.to_csv("/data/users/jguertler/train_inside.csv")
 
         # Replace None with train_inside to avoid TypeError
-        self.inside_model.fit(train_df=train_inside, eval_df=train_inside, outputdir=TRAINED_MODEL_PATH, filename="inside_model_co_trained")
+        self.inside_model.fit(
+            train_df=train_inside,
+            eval_df=train_inside,
+            outputdir=TRAINED_MODEL_PATH,
+            filename="inside_model_co_trained",
+            run_name=f"{run_name} (inside final)",
+        )
 
-        train_outside = pd.DataFrame(dict(sentence=outside_strings[labeled_samples], label=y[labeled_samples]))
+        train_outside = pd.DataFrame(
+            dict(sentence=outside_strings[labeled_samples], label=y[labeled_samples])
+        )
 
         train_outside.to_csv("/data/users/jguertler/train_outside.csv")
 
-        self.outside_model.fit(train_df=train_outside, eval_df=train_inside, outputdir=TRAINED_MODEL_PATH, filename="outside_model_co_trained")
+        self.outside_model.fit(
+            train_df=train_outside,
+            eval_df=train_inside,
+            outputdir=TRAINED_MODEL_PATH,
+            filename="outside_model_co_trained",
+            run_name=f"{run_name} (outside final)",
+        )
 
     def predict_proba(self, inside_strings, outside_strings):
         """Predict the probability of the samples belonging to each class."""

@@ -253,6 +253,7 @@ def cli_main():
         dataloader_num_workers=args.num_workers,
         scale_axis=args.scale_axis,
         predict_batch_size=args.predict_batch_size,
+        run_name=f"{args.run_name}: inside model w/ self-training",
     )
 
     # --------------------
@@ -291,6 +292,7 @@ def cli_main():
         dataloader_num_workers=args.num_workers,
         outputdir=args.output_dir,
         filename="outside_model",
+        run_name=f"{args.run_name}: outside model",
     )
 
     # ------------------------------------------
@@ -322,7 +324,8 @@ def cli_main():
 
     logger.info("Training the inside-outside model w/ co-training!")
     co_training_clf.fit(
-        inside_strings=inside_strings, outside_strings=outside_strings, y=labels
+        inside_strings=inside_strings, outside_strings=outside_strings, y=labels,
+        run_name=f"{args.run_name}: inside-outside w/ co-training",
     )
 
 

@@ -23,17 +23,6 @@ from weakly_supervised_parser.model.span_classifier import LightningModel
 logging.set_verbosity_error()
 
 
-# class MetricsCallback(Callback):
-#    """PyTorch Lightning metric callback."""
-#
-#    def __init__(self):
-#        super().__init__()
-#        self.metrics = []
-#
-#    def on_validation_end(self, trainer, pl_module):
-#        self.metrics.append(trainer.callback_metrics)
-
-
 class InsideOutsideStringClassifier:
     def __init__(
         self, model_name_or_path: str, num_labels: int = 2, max_seq_length: int = 256
@@ -88,15 +77,7 @@ class InsideOutsideStringClassifier:
             eval_batch_size=eval_batch_size,
         )
 
-        wandb_logger.watch(model, log="all")
-
-        class TrainingLossLoggerCallback(Callback):
-            def on_train_epoch_end(self, trainer, pl_module, outputs):
-                train_loss = outputs.get("loss")
-                if train_loss is not None:
-                    trainer.logger.log_metrics(
-                        {"train_loss": train_loss.item()}, step=trainer.global_step
-                    )
+        # wandb_logger.watch(model, log="all")
 
         seed_everything(seed, workers=True)
 
@@ -104,8 +85,6 @@ class InsideOutsideStringClassifier:
         callbacks.append(
             EarlyStopping(monitor="val_loss", patience=2, mode="min", check_finite=True)
         )
-        #        callbacks.append(MetricsCallback())
-        callbacks.append(TrainingLossLoggerCallback())
         # callbacks.append(ModelCheckpoint(monitor="val_loss", dirpath=outputdir, filename=filename, save_top_k=1, save_weights_only=True, mode="min"))
 
         trainer = Trainer(
@@ -116,8 +95,8 @@ class InsideOutsideStringClassifier:
             enable_progress_bar=enable_progress_bar,
             enable_model_summary=enable_model_summary,
             enable_checkpointing=enable_checkpointing,
-            track_grad_norm=2,
             logger=wandb_logger,
+            track_grad_norm=2,
             log_every_n_steps=10,
         )
         trainer.fit(model, data_module)

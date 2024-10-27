@@ -23,6 +23,7 @@ class SelfTrainingClassifier:
         dataloader_num_workers,
         scale_axis,
         predict_batch_size,
+        run_name,
     ):  # -1 for unlabeled
         inside_strings = train_inside["sentence"].values
         labels = train_inside["label"].values
@@ -42,6 +43,7 @@ class SelfTrainingClassifier:
             dataloader_num_workers=dataloader_num_workers,
             outputdir=TRAINED_MODEL_PATH,
             filename="inside_model_self_trained_base",
+            run_name=run_name,
         )
 
         self.inside_model.load_model(
@@ -97,6 +99,7 @@ class SelfTrainingClassifier:
                 #                predict_batch_size = predict_batch_size,
                 outputdir=TRAINED_MODEL_PATH,
                 filename=filename,
+                run_name=f"{run_name} ({idx})",
             )
 
             self.inside_model.load_model(
