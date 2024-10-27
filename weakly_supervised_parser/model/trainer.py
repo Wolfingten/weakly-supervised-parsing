@@ -9,6 +9,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from pytorch_lightning.loggers import WandbLogger
 from transformers import AutoTokenizer, logging
 
 from onnxruntime import InferenceSession
@@ -17,6 +18,10 @@ from scipy.special import softmax
 from weakly_supervised_parser.model.data_module_loader import DataModule
 from weakly_supervised_parser.model.span_classifier import LightningModel
 
+
+wandb_logger = WandbLogger(
+    project="wsparser InsideOutsideStringClassifier", log_model="all"
+)
 
 # Disable model checkpoint warnings
 logging.set_verbosity_error()
@@ -41,7 +46,7 @@ class InsideOutsideStringClassifier:
         enable_progress_bar: bool = True,
         enable_model_summary: bool = False,
         enable_checkpointing: bool = False,
-        logger: bool = False,
+        logger=wandb_logger,
         accelerator: str = "auto",
         train_batch_size: int = 32,
         eval_batch_size: int = 32,
@@ -68,6 +73,8 @@ class InsideOutsideStringClassifier:
             train_batch_size=train_batch_size,
             eval_batch_size=eval_batch_size,
         )
+
+        wandb_logger.watch(model)
 
         seed_everything(seed, workers=True)
 
@@ -141,33 +148,39 @@ class InsideOutsideStringClassifier:
         with torch.no_grad():
             return softmax(self.model.run(None, inputs)[0], axis=scale_axis)
 
-#    def predict_proba(self, spans, scale_axis, predict_batch_size):
-#        if spans.shape[0] > predict_batch_size:
-#            output = []
-#            span_batches = np.array_split(spans, ceil(spans.shape[0] / predict_batch_size))
-#            for span_batch in span_batches:
-#                output.extend(self.process_spans(span_batch, scale_axis))
-#            return np.vstack(output)
-#        else:
-#            return self.process_spans(spans, scale_axis)
+    #    def predict_proba(self, spans, scale_axis, predict_batch_size):
+    #        if spans.shape[0] > predict_batch_size:
+    #            output = []
+    #            span_batches = np.array_split(spans, ceil(spans.shape[0] / predict_batch_size))
+    #            for span_batch in span_batches:
+    #                output.extend(self.process_spans(span_batch, scale_axis))
+    #            return np.vstack(output)
+    #        else:
+    #            return self.process_spans(spans, scale_axis)
 
     def predict_proba(self, spans, scale_axis, predict_batch_size):
         # n_spans = 150
         n_spans = spans.shape[0]
         if n_spans > predict_batch_size:
             # add padding so all inputs can be passed to the model
-            n_padding = (-(-n_spans // predict_batch_size) * predict_batch_size - n_spans)
-            spans = pd.concat([spans, pd.DataFrame(["<pad>"]*n_padding, columns=spans.columns)], ignore_index=True)
+            n_padding = -(-n_spans // predict_batch_size) * predict_batch_size - n_spans
+            spans = pd.concat(
+                [spans, pd.DataFrame(["<pad>"] * n_padding, columns=spans.columns)],
+                ignore_index=True,
+            )
             output = []
             # spans.shape[0] = 160 because padding
             span_batches = np.array_split(spans, spans.shape[0] // predict_batch_size)
             for span_batch in span_batches:
                 output.extend(self.process_spans(span_batch, scale_axis))
-            return np.vstack(output)[:n_spans:] # truncate padding
+            return np.vstack(output)[:n_spans:]  # truncate padding
         else:
             n_padding = predict_batch_size - n_spans
-            spans = pd.concat([spans, pd.DataFrame(["na"]*n_padding, columns=spans.columns)], ignore_index=True)
-            return self.process_spans(spans, scale_axis)[:n_spans:] # truncate padding
+            spans = pd.concat(
+                [spans, pd.DataFrame(["na"] * n_padding, columns=spans.columns)],
+                ignore_index=True,
+            )
+            return self.process_spans(spans, scale_axis)[:n_spans:]  # truncate padding
 
     def predict(self, spans, scale_axis, predict_batch_size):
         return self.predict_proba(spans, scale_axis, predict_batch_size).argmax(axis=1)

@@ -1,7 +1,6 @@
 import torch
 from argparse import ArgumentParser
 from loguru import logger
-from pytorch_lightning.loggers import WandbLogger
 
 from weakly_supervised_parser.settings import TRAINED_MODEL_PATH
 from weakly_supervised_parser.utils.prepare_dataset import PTBDataset
@@ -183,8 +182,6 @@ def cli_main():
 
     args = parser.parse_args()
 
-    wandb_logger = WandbLogger(project="weakly supervised parser", log_model="all")
-
     # -------------------
     # seed bootstrapping
     # -------------------
@@ -200,7 +197,6 @@ def cli_main():
     )
 
     logger.info("Training the inside model!")
-    wandb_logger.watch(inside_model, log_graph=False)
     inside_model.fit(
         train_df=train,
         eval_df=validation,
@@ -213,7 +209,6 @@ def cli_main():
         dataloader_num_workers=args.num_workers,
         outputdir=args.output_dir,
         filename="inside_model",
-        logger=wandb_logger,
     )
 
     # -----------------------------------
